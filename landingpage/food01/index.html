@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pizza Navbar</title>
+
+  <!-- Remix Icon -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <header>
+    <nav class="navbar">
+
+      <div class="logo">
+        <h2>CRUST</h2>
+      </div>
+
+      <div class="navlinks">
+        <a href="#">OUR MENU</a>
+        <a href="#">CATEGORIES</a>
+        <a href="#">ABOUT</a>
+        <a href="#">DISH</a>
+        <a href="#">CONTACT</a>
+      </div>
+
+      <div class="navbtn">
+        <button class="order-btn">
+          ORDER ONLINE <i class="ri-e-bike-2-line"></i>
+        </button>
+      </div>
+
+      <div class="menu-icon">
+        <i class="ri-menu-3-line"></i>
+      </div>
+
+    </nav>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobilemenu">
+    <div class="close">
+      <i class="ri-close-line"></i>
+    </div>
+    <a href="#">OUR MENU</a>
+    <a href="#">CATEGORIES</a>
+    <a href="#">ABOUT</a>
+    <a href="#">CONTACT</a>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="circle-wrap">
+
+      <div class="arc dots-arc" id="dotsArc"></div>
+      <div class="arc arc2"></div>
+
+      <!-- Order Button on Pizza -->
+      <button class="pizza-btn">ORDER NOW</button>
+
+      <img src="/img/pizza.png" class="pizza" alt="pizza">
+
+    </div>
+  </section>
+
+  <section class="page2">
+
+    <!-- Hanging Box -->
+    <div class="page2-hanging">
+      <span class="brand">CRUST PIZZA</span>
+      <input type="text" placeholder="City, State or Zip">
+      <button>ORDER ONLINE</button>
+    </div>
+
+    <h2 class="page2-title">VISIT ANY OF OUR LOCATIONS</h2>
+
+    <!-- Line + Dots -->
+    <div class="page2-line-wrapper">
+
+      <div class="page2-line">
+        <span class="page2-dot active" data-text="LUCKNOW"></span>
+        <span class="page2-dot" data-text="VARANSI"></span>
+        <span class="page2-dot" data-text="DELHI"></span>
+        <span class="page2-dot" data-text="NOIDA"></span>
+      </div>
+
+      <div class="page2-arrow" id="nextFeature">
+        <i class="ri-arrow-right-line"></i>
+      </div>
+
+    </div>
+
+    <!-- Info Section -->
+    <div class="page2-info">
+
+      <!-- Image -->
+      <div class="info image">
+        <img src="/img/F1img2.png" alt="delivery">
+      </div>
+
+      <!-- Text -->
+      <div class="info text">
+        <h3>ALDEN BRIDGE</h3>
+        <p>
+          8000 Research Forest Dr Suite 340<br>
+          The Woodlands, TX 77382
+        </p>
+
+        <h4>HOURS OF OPERATION</h4>
+        <p>
+          Sun–Thu: 11:00am – 9:00pm<br>
+          Fri–Sat: 11:00am – 10:00pm
+        </p>
+
+        <p class="phone">📞 832-555-0999</p>
+      </div>
+
+      <!-- Map -->
+      <div class="info map">
+        <iframe src="https://maps.google.com/maps?q=The%20Woodlands%20TX&t=&z=13&ie=UTF8&iwloc=&output=embed">
+        </iframe>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- PAGE 3 : OUR MENU -->
+  <section class="page3">
+
+    <h2 class="page3-title">OUR MENU</h2>
+
+    <!-- Menu Categories -->
+    <div class="menu-tabs">
+      <button class="tab active">🍕 GOURMET PIZZAS</button>
+      <button class="tab">🧱 BUILD YOUR OWN</button>
+      <button class="tab">🥗 STARTERS & SALADS</button>
+      <button class="tab">🍝 PASTAS & SUBS</button>
+      <button class="tab">📦 EVERYTHING ELSE</button>
+    </div>
+
+    <!-- Menu Cards -->
+    <div class="menu-grid">
+
+      <!-- Card 1 -->
+      <div class="menu-card">
+        <img src="/img/m1.jpg" alt="The Blanco">
+        <div class="menu-info">
+          <h3>THE BLANCO</h3>
+          <p class="price">STARTING $11</p>
+          <button class="order-btn">ORDER NOW</button>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="menu-card">
+        <img src="/img/m2.jpg" alt="Tuscany">
+        <div class="menu-info">
+          <h3>TUSCANY</h3>
+          <p class="price">STARTING $11</p>
+          <button class="order-btn ">ORDER NOW</button>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="menu-card">
+        <img src="/img/m3.jpg" alt="The Jerk">
+        <div class="menu-info">
+          <h3>THE JERK</h3>
+          <p class="price">STARTING $11</p>
+          <button class="order-btn ">ORDER NOW</button>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="menu-card">
+        <img src="/img/m4.jpg" alt="Old Smokey">
+        <div class="menu-info">
+          <h3>OLD SMOKEY</h3>
+          <p class="price">STARTING $11</p>
+          <button class="order-btn ">ORDER NOW</button>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- PAGE 4 -->
+  <section class="page4">
+
+    <div class="page4-container">
+
+      <!-- LEFT : IMAGE COLLAGE -->
+      <div class="page4-images">
+
+        <div class="img-card img-1">
+          <img src="/img/F1p4i2.png" alt="pizza">
+        </div>
+
+        <div class="img-card img-2">
+          <img src="/img/F1p4i1.png" alt="people eating">
+        </div>
+
+        <div class="img-card img-3">
+          <img src="/img/F1p4i3.png" alt="cups">
+        </div>
+
+        <div class="img-card img-4">
+          <img src="/img/F1p4i4.png" alt="logo">
+        </div>
+
+      </div>
+
+      <!-- RIGHT : TEXT -->
+      <div class="page4-text">
+        <h2>
+          CHICAGO-STYLE THIN CRUST<br>
+          PIZZA THAT EVEN TEXANS<br>
+          WILL LOVE
+        </h2>
+
+        <p>
+          Crust Pizza is the locally-owned place for delicious,
+          made-from-scratch pizzas served in an upscale, comfortable,
+          family-friendly environment.
+        </p>
+
+          <div class="navbtn">
+        <button class="order-btn">
+          ORDER ONLINE <i class="ri-e-bike-2-line"></i>
+        </button>
+      </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- PAGE LAST : FOOTER -->
+<footer class="footer">
+
+  <!-- Top Cards -->
+  <div class="footer-top">
+
+    <div class="footer-card">
+      <img src="/img/" alt="">
+      <h4>CATERING & EVENTS</h4>
+      <p>
+        Crust Pizza is now offering catering services for local businesses,
+        schools, and other events. We will cater our delicious gourmet
+        pizzas and other items for parties from 50 to 1000.
+      </p>
+    </div>
+
+    <div class="footer-card">
+      <img src="/img/work.png" alt="">
+      <h4>WORK AT CRUST PIZZA</h4>
+      <p>
+        At Crust Pizza, our people are our greatest asset.
+        Want to join our team?
+      </p>
+    </div>
+
+    <div class="footer-card">
+      <img src="/img/franchise.png" alt="">
+      <h4>OWN A CRUST FRANCHISE</h4>
+      <p>
+        Aside from being part of one of the best cuisines in the restaurant
+        industry, Crust Pizza offers restaurant professionals and
+        entrepreneurs the opportunity to operate.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Footer Links -->
+  <div class="footer-links">
+    <a href="#">OUR MENU</a>
+    <a href="#">CATERING</a>
+    <a href="#">PRESS</a>
+    <a href="#">CAREERS</a>
+    <a href="#">REWARDS</a>
+    <a href="#">FRANCHISE</a>
+    <a href="#">ORDER ONLINE</a>
+  </div>
+
+  <!-- Contact -->
+  <p class="footer-contact">
+    Tell us how we’re doing:
+    <a href="mailto:info@crustpizzaco.com">info@crustpizzaco.com</a>
+  </p>
+
+  <!-- Social -->
+  <div class="footer-social">
+    <i class="ri-facebook-fill"></i>
+    <i class="ri-instagram-line"></i>
+  </div>
+
+  <p class="copyright">
+    Crust Pizza is a locally owned place for delicious, made-from-scratch
+    pizzas served in an upscale, comfortable, family-friendly environment.
+  </p>
+
+</footer>
+
+
+
+
+
+  <script src="script.js"></script>
+</body>
+
+</html>
