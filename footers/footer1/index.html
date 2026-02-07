@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticky Footer</title>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+
+<style>
+    .container{
+        min-height: 100vh;
+        margin-bottom: 60vh;
+    }
+
+    footer{
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        height: 60vh;
+    }
+</style>
+
+<body>
+    <main>
+        <div class="container">
+            <div class="scroll-message">
+                <p>Feel the precision of <span>Lenis scroll</span> as the footer elegantly unfolds with every scroll.</p>
+            </div>
+            <div class="scroll-indicator">
+                <span class="scroll-text">Scroll</span>
+                <div class="scroll-line"></div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-container">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <p>We are designers and developers focused on building meaningful digital products that drive real results.</p>
+                    <div class="social-links">
+                        <a href="#">𝕏</a>
+                        <a href="#">in</a>
+                        <a href="#">◉</a>
+                        <a href="#">ƒ</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Services</a></li>
+                        <li><a href="#">Portfolio</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <h1>XBZIN Footer</h1>
+        </footer>
+    </main>
+
+    <script>
+        const lenis = new Lenis();
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+
+        requestAnimationFrame(raf);
+    </script>
+</body>
+
+</html>
