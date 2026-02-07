@@ -1,74 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
+<title>Magnetic Footer – Full Code</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Animated Footer</title>
-
-<!-- Lenis -->
-<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 
 <!-- GSAP -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
-<link rel="stylesheet" href="style.css">
+<!-- Lenis -->
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+}
+
+body{
+  background:#000;
+  color:#fff;
+  overflow-x:hidden;
+}
+
+/* DEMO SPACE */
+.spacer{
+  height:130vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:3vw;
+  color:#555;
+}
+
+/* SVG WAVE */
+.footer-wave{width:100%;display:block}
+
+/* FOOTER */
+.footer{
+  position:relative;
+  margin:0 20px 20px;
+  padding:80px 60px 30px;
+  background:#fff;
+  color:#000;
+  border-radius:30px;
+  overflow:hidden;
+}
+
+/* CURSOR GLOW */
+.cursor-glow{
+  position:absolute;
+  width:260px;
+  height:260px;
+  background:radial-gradient(circle, rgba(0,0,0,.15), transparent 65%);
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+}
+
+/* FOOTER GRID */
+.footer-inner{
+  position:relative;
+  z-index:2;
+  max-width:1200px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1.5fr;
+  gap:60px;
+}
+
+/* FOOTER BOXES */
+.footer-col{
+  background:rgba(0,0,0,.04);
+  padding:28px;
+  border-radius:22px;
+  backdrop-filter:blur(6px);
+  will-change:transform;
+}
+
+/* TEXT */
+.footer-col h2{font-size:28px;margin-bottom:12px}
+.footer-col h4{font-size:15px;margin-bottom:12px;opacity:.7}
+.footer-col p{opacity:.7;line-height:1.6}
+
+.footer-col ul{list-style:none}
+.footer-col li{margin-bottom:10px}
+
+.footer-col a{
+  color:#000;
+  text-decoration:none;
+  position:relative;
+  font-weight:500;
+}
+
+.footer-col a::after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:-3px;
+  width:0;
+  height:1px;
+  background:#000;
+  transition:.3s;
+}
+.footer-col a:hover::after{width:100%}
+
+/* NEWSLETTER */
+.newsletter input{
+  width:100%;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1px solid #000;
+  background:transparent;
+  margin-bottom:12px;
+}
+
+.newsletter button{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #000;
+  background:#000;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* FOOTER BOTTOM */
+.footer-bottom{
+  width:1200px;
+  margin:40px auto 0;
+  padding-top:20px;
+  border-top:1px solid rgba(0,0,0,.15);
+  display:flex;
+  justify-content:space-between;
+  font-size:14px;
+  opacity:.6;
+}
+
+/* MAGNETIC BASE */
+.magnetic,
+.magnetic-box{
+  display:inline-block;
+  will-change:transform;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .footer-inner{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .footer-inner{grid-template-columns:1fr}
+  .footer{padding:60px 24px 24px}
+}
+</style>
 </head>
+
 <body>
 
-<main class="content">
-  <section class="dummy">
-    <h1>Scroll Down</h1>
-    <p>Professional animated footer using GSAP & Lenis</p>
-  </section>
-</main>
+<div class="spacer">Scroll Down ↓</div>
+
+<svg class="footer-wave" viewBox="0 0 1440 90">
+  <path d="M0,40 C240,80 480,0 720,20 960,40 1200,80 1440,30 L1440,0 L0,0 Z" fill="#000"/>
+</svg>
 
 <footer class="footer">
+
+  <div class="cursor-glow"></div>
+
   <div class="footer-inner">
 
-    <div class="footer-col brand">
-      <h2>XBzin</h2>
-      <p>Building modern AI-powered digital experiences with performance and design in mind.</p>
+    <div class="footer-col magnetic-box">
+      <h2 class="magnetic">XBzin</h2>
+      <p class="magnetic">Modern AI-powered platforms built with clarity, motion and performance.</p>
     </div>
 
-    <div class="footer-col">
-      <h4>Company</h4>
+    <div class="footer-col magnetic-box">
+      <h4 class="magnetic">Company</h4>
       <ul>
-        <li><a href="#">About</a></li>
-        <li><a href="#">Careers</a></li>
-        <li><a href="#">Blog</a></li>
+        <li><a class="magnetic" href="#">About</a></li>
+        <li><a class="magnetic" href="#">Careers</a></li>
+        <li><a class="magnetic" href="#">Blog</a></li>
       </ul>
     </div>
 
-    <div class="footer-col">
-      <h4>Resources</h4>
+    <div class="footer-col magnetic-box">
+      <h4 class="magnetic">Resources</h4>
       <ul>
-        <li><a href="#">Docs</a></li>
-        <li><a href="#">Support</a></li>
-        <li><a href="#">API</a></li>
+        <li><a class="magnetic" href="#">Docs</a></li>
+        <li><a class="magnetic" href="#">Support</a></li>
+        <li><a class="magnetic" href="#">API</a></li>
       </ul>
     </div>
 
-    <div class="footer-col newsletter">
-      <h4>Stay Updated</h4>
-      <form>
-        <input type="email" placeholder="Email address">
-        <button type="submit">Subscribe</button>
-      </form>
+    <div class="footer-col newsletter magnetic-box">
+      <h4 class="magnetic">Stay Updated</h4>
+      <input type="email" placeholder="Email">
+      <button class="magnetic">Subscribe</button>
     </div>
 
   </div>
 
-  <div class="footer-bottom">
-    <span>© 2026 XBzin. All rights reserved.</span>
-    <div class="socials">
-      <a href="#">Twitter</a>
-      <a href="#">GitHub</a>
-      <a href="#">LinkedIn</a>
-    </div>
+  <div class="footer-bottom magnetic">
+    <span>© 2026 XBzin</span>
+    <span>All rights reserved</span>
   </div>
+
 </footer>
 
-<script src="script.js"></script>
+<script>
+/* LENIS */
+const lenis = new Lenis({ lerp:0.08 });
+requestAnimationFrame(function raf(time){
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+});
+
+/* GSAP */
+gsap.registerPlugin(ScrollTrigger);
+
+/* REVEAL */
+gsap.from(".footer-col",{
+  scrollTrigger:{trigger:".footer",start:"top 80%"},
+  clipPath:"inset(0 0 100% 0)",
+  opacity:0,
+  duration:1.2,
+  ease:"expo.out",
+  stagger:0.15
+});
+
+/* CURSOR GLOW */
+const glow=document.querySelector(".cursor-glow");
+document.querySelector(".footer").addEventListener("mousemove",e=>{
+  gsap.to(glow,{
+    x:e.clientX,
+    y:e.clientY+window.scrollY,
+    duration:.25,
+    ease:"power3.out"
+  });
+});
+
+/* UNIVERSAL MAGNETIC SYSTEM */
+function magnetic(selector,strength){
+  document.querySelectorAll(selector).forEach(el=>{
+    el.addEventListener("mousemove",e=>{
+      const r=el.getBoundingClientRect();
+      gsap.to(el,{
+        x:(e.clientX-r.left-r.width/2)*strength,
+        y:(e.clientY-r.top-r.height/2)*strength,
+        duration:.4,
+        ease:"power3.out"
+      });
+    });
+    el.addEventListener("mouseleave",()=>{
+      gsap.to(el,{x:0,y:0,duration:.6,ease:"elastic.out(1,0.45)"});
+    });
+  });
+}
+
+magnetic(".magnetic",0.25);       // text & links
+magnetic(".magnetic-box",0.12);  // boxes
+</script>
+
 </body>
 </html>
