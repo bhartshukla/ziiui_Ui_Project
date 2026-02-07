@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Magnetic Footer – Full Code</title>
+<title>Awwwards Magnetic Footer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Remix Icon -->
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
 
 <!-- GSAP -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -13,6 +16,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 
 <style>
+:root{
+  --black:#000;
+  --white:#fff;
+}
+
 *{
   margin:0;
   padding:0;
@@ -26,7 +34,7 @@ body{
   overflow-x:hidden;
 }
 
-/* DEMO SPACE */
+/* DEMO */
 .spacer{
   height:130vh;
   display:flex;
@@ -36,31 +44,37 @@ body{
   color:#555;
 }
 
-/* SVG WAVE */
-.footer-wave{width:100%;display:block}
-
 /* FOOTER */
 .footer{
   position:relative;
   margin:0 20px 20px;
-  padding:80px 60px 30px;
+  padding:90px 70px 36px;
   background:#fff;
   color:#000;
-  border-radius:30px;
+  border-radius:34px;
   overflow:hidden;
 }
 
-/* CURSOR GLOW */
+/* Grain */
+.footer::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+  pointer-events:none;
+}
+
+/* Cursor Glow */
 .cursor-glow{
   position:absolute;
-  width:260px;
-  height:260px;
-  background:radial-gradient(circle, rgba(0,0,0,.15), transparent 65%);
+  width:300px;
+  height:300px;
+  background:radial-gradient(circle, rgba(0,0,0,.18), transparent 65%);
   pointer-events:none;
   transform:translate(-50%,-50%);
 }
 
-/* FOOTER GRID */
+/* GRID */
 .footer-inner{
   position:relative;
   z-index:2;
@@ -68,31 +82,34 @@ body{
   margin:auto;
   display:grid;
   grid-template-columns:2fr 1fr 1fr 1.5fr;
-  gap:60px;
+  gap:64px;
 }
 
-/* FOOTER BOXES */
+/* BOXES */
 .footer-col{
-  background:rgba(0,0,0,.04);
-  padding:28px;
-  border-radius:22px;
-  backdrop-filter:blur(6px);
-  will-change:transform;
+  background:rgba(0,0,0,.035);
+  padding:30px;
+  border-radius:24px;
+  backdrop-filter:blur(8px);
+  transition:box-shadow .4s ease;
+}
+
+.footer-col:hover{
+  box-shadow:0 30px 80px rgba(0,0,0,.08);
 }
 
 /* TEXT */
-.footer-col h2{font-size:28px;margin-bottom:12px}
-.footer-col h4{font-size:15px;margin-bottom:12px;opacity:.7}
-.footer-col p{opacity:.7;line-height:1.6}
+.footer-col h2{font-size:30px;margin-bottom:14px}
+.footer-col h4{font-size:15px;margin-bottom:14px;opacity:.7}
+.footer-col p{opacity:.7;line-height:1.65}
 
 .footer-col ul{list-style:none}
-.footer-col li{margin-bottom:10px}
+.footer-col li{margin-bottom:12px}
 
 .footer-col a{
   color:#000;
   text-decoration:none;
   position:relative;
-  font-weight:500;
 }
 
 .footer-col a::after{
@@ -103,41 +120,51 @@ body{
   width:0;
   height:1px;
   background:#000;
-  transition:.3s;
+  transition:.35s ease;
 }
 .footer-col a:hover::after{width:100%}
 
 /* NEWSLETTER */
 .newsletter input{
   width:100%;
-  padding:12px 14px;
-  border-radius:12px;
+  padding:14px 16px;
+  border-radius:14px;
   border:1px solid #000;
   background:transparent;
-  margin-bottom:12px;
+  margin-bottom:14px;
 }
 
 .newsletter button{
   width:100%;
-  padding:12px;
-  border-radius:12px;
+  padding:14px;
+  border-radius:14px;
   border:1px solid #000;
   background:#000;
   color:#fff;
-  font-weight:600;
   cursor:pointer;
 }
 
-/* FOOTER BOTTOM */
+/* FOOTER BOTTOM (FULL WIDTH) */
 .footer-bottom{
-  width:1200px;
-  margin:40px auto 0;
-  padding-top:20px;
+  width:100%;
+  margin-top:48px;
+  padding:22px 70px 0;
   border-top:1px solid rgba(0,0,0,.15);
   display:flex;
   justify-content:space-between;
+  align-items:center;
   font-size:14px;
-  opacity:.6;
+  opacity:.7;
+}
+
+/* SOCIALS */
+.socials{
+  display:flex;
+  gap:18px;
+}
+.socials a{
+  font-size:20px;
+  color:#000;
 }
 
 /* MAGNETIC BASE */
@@ -153,7 +180,8 @@ body{
 }
 @media(max-width:600px){
   .footer-inner{grid-template-columns:1fr}
-  .footer{padding:60px 24px 24px}
+  .footer{padding:70px 26px 28px}
+  .footer-bottom{padding:22px 26px 0}
 }
 </style>
 </head>
@@ -161,10 +189,6 @@ body{
 <body>
 
 <div class="spacer">Scroll Down ↓</div>
-
-<svg class="footer-wave" viewBox="0 0 1440 90">
-  <path d="M0,40 C240,80 480,0 720,20 960,40 1200,80 1440,30 L1440,0 L0,0 Z" fill="#000"/>
-</svg>
 
 <footer class="footer">
 
@@ -174,7 +198,7 @@ body{
 
     <div class="footer-col magnetic-box">
       <h2 class="magnetic">XBzin</h2>
-      <p class="magnetic">Modern AI-powered platforms built with clarity, motion and performance.</p>
+      <p class="magnetic">Modern AI-powered platforms built with clarity and motion.</p>
     </div>
 
     <div class="footer-col magnetic-box">
@@ -197,25 +221,29 @@ body{
 
     <div class="footer-col newsletter magnetic-box">
       <h4 class="magnetic">Stay Updated</h4>
-      <input type="email" placeholder="Email">
+      <input type="email" placeholder="Email address">
       <button class="magnetic">Subscribe</button>
     </div>
 
   </div>
 
   <div class="footer-bottom magnetic">
-    <span>© 2026 XBzin</span>
-    <span>All rights reserved</span>
+    <!-- <span>© 2026 XBzin</span> -->
+    <div class="socials">
+      <a class="magnetic" href="#"><i class="ri-instagram-line"></i></a>
+      <a class="magnetic" href="#"><i class="ri-twitter-x-line"></i></a>
+      <a class="magnetic" href="#"><i class="ri-linkedin-line"></i></a>
+      <a class="magnetic" href="#"><i class="ri-github-line"></i></a>
+    </div>
   </div>
 
 </footer>
 
 <script>
 /* LENIS */
-const lenis = new Lenis({ lerp:0.08 });
-requestAnimationFrame(function raf(time){
-  lenis.raf(time);
-  requestAnimationFrame(raf);
+const lenis=new Lenis({lerp:.08});
+requestAnimationFrame(function raf(t){
+  lenis.raf(t);requestAnimationFrame(raf);
 });
 
 /* GSAP */
@@ -224,44 +252,39 @@ gsap.registerPlugin(ScrollTrigger);
 /* REVEAL */
 gsap.from(".footer-col",{
   scrollTrigger:{trigger:".footer",start:"top 80%"},
-  clipPath:"inset(0 0 100% 0)",
+  y:40,
   opacity:0,
-  duration:1.2,
+  filter:"blur(10px)",
+  clipPath:"inset(0 0 100% 0)",
+  duration:1.4,
   ease:"expo.out",
-  stagger:0.15
+  stagger:.15
 });
 
 /* CURSOR GLOW */
 const glow=document.querySelector(".cursor-glow");
 document.querySelector(".footer").addEventListener("mousemove",e=>{
-  gsap.to(glow,{
-    x:e.clientX,
-    y:e.clientY+window.scrollY,
-    duration:.25,
-    ease:"power3.out"
-  });
+  gsap.to(glow,{x:e.clientX,y:e.clientY+window.scrollY,duration:.35});
 });
 
-/* UNIVERSAL MAGNETIC SYSTEM */
-function magnetic(selector,strength){
-  document.querySelectorAll(selector).forEach(el=>{
-    el.addEventListener("mousemove",e=>{
+/* MAGNETIC + TOUCH SUPPORT */
+function magnetic(sel,str){
+  document.querySelectorAll(sel).forEach(el=>{
+    const move=e=>{
       const r=el.getBoundingClientRect();
-      gsap.to(el,{
-        x:(e.clientX-r.left-r.width/2)*strength,
-        y:(e.clientY-r.top-r.height/2)*strength,
-        duration:.4,
-        ease:"power3.out"
-      });
-    });
-    el.addEventListener("mouseleave",()=>{
-      gsap.to(el,{x:0,y:0,duration:.6,ease:"elastic.out(1,0.45)"});
-    });
+      const x=(e.clientX||e.touches[0].clientX)-r.left-r.width/2;
+      const y=(e.clientY||e.touches[0].clientY)-r.top-r.height/2;
+      gsap.to(el,{x:x*str,y:y*str,duration:.4});
+    };
+    el.addEventListener("mousemove",move);
+    el.addEventListener("touchmove",move);
+    el.addEventListener("mouseleave",()=>gsap.to(el,{x:0,y:0,duration:.6}));
+    el.addEventListener("touchend",()=>gsap.to(el,{x:0,y:0,duration:.6}));
   });
 }
 
-magnetic(".magnetic",0.25);       // text & links
-magnetic(".magnetic-box",0.12);  // boxes
+magnetic(".magnetic",0.22);
+magnetic(".magnetic-box",0.1);
 </script>
 
 </body>
