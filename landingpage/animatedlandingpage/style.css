@@ -1,0 +1,45 @@
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::-webkit-scrollbar { display: none; }
+        html { scrollbar-width: none; }
+        body { font-family: 'Bricolage Grotesque', sans-serif; }
+
+        section {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            padding: 4vw;
+            padding-top: clamp(2rem, 8vw, 4vw);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1.5rem;
+            transform-origin: bottom left;
+            will-change: transform;
+        }
+
+        .big { font-family: 'Bebas Neue', sans-serif; font-size: clamp(3.5rem, 12vw, 14rem); font-weight: 400; line-height: .85; text-transform: uppercase; letter-spacing: -.02em; }
+        .sub { font-size: clamp(1rem, 2.5vw, 2rem); max-width: 50ch; line-height: 1.4; font-weight: 400; }
+        .tag { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .2em; }
+        .right { text-align: right; align-self: flex-end; }
+        .bottom { margin-top: auto; }
+        hr { border: none; border-top: 1px solid currentColor; opacity: .6; margin: 2vw 0; }
+        .cols { display: flex; gap: 3vw; flex-wrap: wrap; }
+        .cols > div { flex: 1; min-width: 180px; }
+        .label { font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .5rem; }
+        .detail { font-size: clamp(.85rem, 1.3vw, 1.05rem); line-height: 1.5; opacity: .75; }
+
+        /* Section colors on containers */
+        .s1 .container { background: #E85A2B; color: #000; }
+        .s1 hr { border-color: #000; opacity: 1; }
+        .s2 .container { background: #000; color: #fff; }
+        .s3 .container { background: #F5F0E8; color: #000; }
+        .s4 .container { background: #1A3DE8; color: #fff; }
+        .s4 hr { border-color: rgba(255,255,255,.5); }
+        .s5 .container { background: #E8E02B; color: #000; }
