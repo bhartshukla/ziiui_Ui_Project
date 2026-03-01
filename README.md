@@ -1,6 +1,6 @@
 # ziiuicomponents
 
-2 landing page
+3 landing page
 
 2 sections 
 
