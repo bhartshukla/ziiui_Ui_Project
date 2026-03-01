@@ -8,3 +8,5 @@
 
 1 menu nvbar
 
+1 loader
+
