@@ -2,11 +2,12 @@
 
 3 landing page
 
-2 sections 
+4 sections 
 
 2 footers 
 
 1 menu nvbar
 
 1 loader
+
 
