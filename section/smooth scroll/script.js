@@ -1,4 +1,4 @@
-<script>
+
         const lenis = new Lenis();
         lenis.on('scroll', ScrollTrigger.update);
         gsap.ticker.add(t => lenis.raf(t * 1000));
@@ -36,4 +36,3 @@
                 dots.forEach((d, i) => d.classList.toggle('active', i === active));
             },
         });
-    </script>
