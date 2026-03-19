@@ -2,7 +2,7 @@
 
 3 landing page
 
-4 sections 
+5 sections 
 
 2 footers 
 
