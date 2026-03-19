@@ -19,12 +19,12 @@ body{
   height:220vh;
 }
 
-/* dummy content */
+
 .spacer{
   height:120vh;
 }
 
-/* FOOTER */
+
 footer{
   background:var(--footer);
   height:100vh;
@@ -39,7 +39,7 @@ footer{
   justify-content:space-between;
 }
 
-/* TEXT */
+
 .footer-title{
   font-size:clamp(3rem,8vw,8rem);
   font-weight:800;
@@ -55,7 +55,7 @@ footer{
   display:inline-block;
 }
 
-/* LINKS */
+
 .footer-links{
   display:flex;
   flex-wrap:wrap;
@@ -95,7 +95,7 @@ footer{
   width:100%;
 }
 
-/* BOTTOM */
+
 .footer-bottom{
   display:flex;
   justify-content:space-between;
@@ -105,7 +105,7 @@ footer{
   font-size:14px;
 }
 
-/* RESPONSIVE */
+
 @media(max-width:768px){
   .footer-inner{ padding:40px 20px; }
   .footer-links{ gap:30px; }
