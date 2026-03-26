@@ -1,13 +1,13 @@
 # ziiuicomponents
 
-3 landing page
+3 landing page  out of 10
 
-5 sections 
+5 sections  out of 10
 
-2 footers 
+2 footers   out of 10
 
-1 menu nvbar
+1 menu nvbar   out of 10
 
-1 loader
+1 loader  out of 10
 
 
