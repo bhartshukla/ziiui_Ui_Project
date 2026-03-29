@@ -1,231 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>WebGL Image Transition</title>
+<meta charset="UTF-8">
+<title>Advanced Shader Scroll</title>
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
 
-  <!-- GSAP -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-  <!-- THREE -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Bebas Neue',sans-serif;}
+body{background:#0a0a0a;color:white;overflow-x:hidden;}
 
-  <!-- Lenis -->
-  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js"></script>
+.section{
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  z-index:2;
+}
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Bebas Neue', sans-serif;
-    }
+.section h1{
+  font-size:8vw;
+  text-align:center;
+  pointer-events:none;
+  mix-blend-mode: difference;
+}
 
-    html, body {
-      height: 100%;
-      width: 100%;
-      background: #0e0e0e;
-    }
-
-    header, footer {
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    header h1,
-    footer h2 {
-      font-size: 7vmax;
-      color: #fff;
-      text-align: center;
-    }
-
-    #gl-container {
-      position: relative;
-      width: 100%;
-    }
-
-    #gl-scroller {
-      height: 100vh;
-      position: sticky;
-      top: 0;
-      overflow: hidden;
-    }
-
-    canvas {
-      display: block;
-    }
-
-    .overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .section {
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .section p {
-      font-size: 10vmax;
-      color: white;
-    }
-  </style>
+#gl-container{
+  position:fixed;
+  inset:0;
+  z-index:1;
+}
+</style>
 </head>
 
 <body>
 
-<header>
-  <h1>Immersive WebGL<br>Transitions</h1>
-</header>
+<div class="section"><h1>FIRST</h1></div>
+<div class="section"><h1>SECOND</h1></div>
+<div class="section"><h1>THIRD</h1></div>
 
-<div id="gl-container">
-  <div id="gl-scroller"></div>
-</div>
-
-<footer>
-  <h2>The End</h2>
-</footer>
+<div id="gl-container"></div>
 
 <script>
 gsap.registerPlugin(ScrollTrigger);
 
-// Smooth scroll
-const lenis = new Lenis();
-function raf(time) {
-  lenis.raf(time);
-  requestAnimationFrame(raf);
-}
-requestAnimationFrame(raf);
+// ================= IMAGES =================
+const images = ["image.png","image1.png","image.png"];
 
-// Data
-const sections = [
-  { text: "LEXA", image: "https://picsum.photos/1200/800?random=1" },
-  { text: "ROAR", image: "https://picsum.photos/1200/800?random=2" },
-  { text: "SPARK", image: "https://picsum.photos/1200/800?random=3" }
-];
-
-const container = document.getElementById("gl-scroller");
-const wrapper = document.getElementById("gl-container");
-
-// Overlay text
-const overlay = document.createElement("div");
-overlay.classList.add("overlay");
-
-sections.forEach(s => {
-  const div = document.createElement("div");
-  div.classList.add("section");
-  div.innerHTML = `<p>${s.text}</p>`;
-  overlay.appendChild(div);
-});
-
-wrapper.appendChild(overlay);
-wrapper.style.height = sections.length * 100 + "vh";
-
-// THREE setup
+// ================= THREE =================
 let scene = new THREE.Scene();
-let camera, renderer, mesh;
 
-const width = window.innerWidth;
-const height = window.innerHeight;
+let width = window.innerWidth;
+let height = window.innerHeight;
 
-camera = new THREE.OrthographicCamera(
-  width / -2, width / 2,
-  height / 2, height / -2,
-  1, 1000
+let camera = new THREE.OrthographicCamera(
+  width/-2, width/2,
+  height/2, height/-2,
+  -1, 1
 );
 
-camera.position.z = 1;
+let renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(width,height);
+document.getElementById("gl-container").appendChild(renderer.domElement);
 
-renderer = new THREE.WebGLRenderer({ alpha: true });
-renderer.setSize(width, height);
-container.appendChild(renderer.domElement);
-
-// Load textures
+// ================= TEXTURES =================
 const loader = new THREE.TextureLoader();
+let textures = images.map(src=>{
+  let t = loader.load(src);
+  t.minFilter = THREE.LinearFilter;
+  return t;
+});
 
-let textures = sections.map(s => loader.load(s.image));
-
-// Shader
+// ================= SHADER =================
 const material = new THREE.ShaderMaterial({
-  uniforms: {
-    texture1: { value: textures[0] },
-    texture2: { value: textures[1] },
-    progress: { value: 0 }
+  uniforms:{
+    u_texture0:{value:textures[0]},
+    u_texture1:{value:textures[1]},
+    u_progress:{value:0},
+    u_time:{value:0},
+    u_mouse:{value:new THREE.Vector2(0.5,0.5)},
+    u_hover:{value:0}
   },
-  vertexShader: `
+
+  vertexShader:`
     varying vec2 vUv;
-    void main() {
+    void main(){
       vUv = uv;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
     }
   `,
-  fragmentShader: `
-    uniform sampler2D texture1;
-    uniform sampler2D texture2;
-    uniform float progress;
+
+  fragmentShader:`
+    uniform sampler2D u_texture0;
+    uniform sampler2D u_texture1;
+    uniform float u_progress;
+    uniform float u_time;
+    uniform vec2 u_mouse;
+    uniform float u_hover;
     varying vec2 vUv;
 
-    void main() {
-      vec4 t1 = texture2D(texture1, vUv);
-      vec4 t2 = texture2D(texture2, vUv);
-      gl_FragColor = mix(t1, t2, progress);
+    void main(){
+
+      vec2 uv = vUv;
+
+      // 🔥 DISTORTION (stronger)
+      float dist = distance(uv, u_mouse);
+      float ripple = sin(dist*20.0 - u_time*5.0) * 0.03 * u_hover;
+
+      float wave = sin(uv.y*10.0 + u_time*2.0) * 0.05;
+
+      vec2 uv0 = uv + wave*(1.0-u_progress) + ripple;
+      vec2 uv1 = uv - wave*u_progress - ripple;
+
+      // 🔥 ZOOM EFFECT
+      uv0 = mix(uv0, 0.5 + (uv0-0.5)*1.2, u_progress);
+      uv1 = mix(uv1, 0.5 + (uv1-0.5)*0.8, u_progress);
+
+      float rgb = 0.02 * sin(u_progress*3.14);
+
+      vec4 tex0 = vec4(
+        texture2D(u_texture0, uv0+vec2(rgb,0)).r,
+        texture2D(u_texture0, uv0).g,
+        texture2D(u_texture0, uv0-vec2(rgb,0)).b,
+        1.0
+      );
+
+      vec4 tex1 = vec4(
+        texture2D(u_texture1, uv1-vec2(rgb,0)).r,
+        texture2D(u_texture1, uv1).g,
+        texture2D(u_texture1, uv1+vec2(rgb,0)).b,
+        1.0
+      );
+
+      float prog = smoothstep(0.0,1.0,u_progress);
+
+      gl_FragColor = mix(tex0, tex1, prog);
     }
   `
 });
 
-const geometry = new THREE.PlaneGeometry(width, height);
-mesh = new THREE.Mesh(geometry, material);
+// ================= MESH =================
+const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width,height), material);
 scene.add(mesh);
 
-// Scroll animation
-let current = 0;
+// ================= SCROLL =================
+const sections = document.querySelectorAll(".section");
+let currentIndex = 0;
 
-ScrollTrigger.create({
-  trigger: wrapper,
-  start: "top top",
-  end: "+=" + (sections.length - 1) * 100 + "%",
-  scrub: true,
-  onUpdate: (self) => {
-    let index = Math.floor(self.progress * (sections.length - 1));
-
-    if (index !== current) {
-      material.uniforms.texture1.value = textures[current];
-      material.uniforms.texture2.value = textures[index];
-
-      gsap.to(material.uniforms.progress, {
-        value: 1,
-        duration: 0.8,
-        onComplete: () => {
-          material.uniforms.texture1.value = textures[index];
-          material.uniforms.progress.value = 0;
-          current = index;
-        }
-      });
-    }
-  }
+sections.forEach((section,i)=>{
+  ScrollTrigger.create({
+    trigger: section,
+    start:"top center",
+    end:"bottom center",
+    onEnter:()=>change(i),
+    onEnterBack:()=>change(i)
+  });
 });
 
-// Render loop
-function animate() {
-  renderer.render(scene, camera);
-  requestAnimationFrame(animate);
-}
-animate();
+function change(index){
+  if(index===currentIndex) return;
 
-// Resize
-window.addEventListener("resize", () => {
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  gsap.to(material.uniforms.u_progress,{
+    value:1,
+    duration:1.2,
+    ease:"power3.inOut",
+    onStart:()=>{
+      material.uniforms.u_texture1.value = textures[index];
+    },
+    onComplete:()=>{
+      material.uniforms.u_texture0.value = textures[index];
+      material.uniforms.u_progress.value = 0;
+      currentIndex=index;
+    }
+  });
+}
+
+// ================= MOUSE =================
+window.addEventListener("mousemove",(e)=>{
+  material.uniforms.u_mouse.value.x = e.clientX/width;
+  material.uniforms.u_mouse.value.y = 1 - e.clientY/height;
+});
+
+// hover intensity
+window.addEventListener("mouseenter",()=>{
+  gsap.to(material.uniforms.u_hover,{value:1,duration:0.5});
+});
+window.addEventListener("mouseleave",()=>{
+  gsap.to(material.uniforms.u_hover,{value:0,duration:0.5});
+});
+
+// ================= RENDER =================
+function render(t){
+  material.uniforms.u_time.value = t*0.001;
+  renderer.render(scene,camera);
+  requestAnimationFrame(render);
+}
+render();
+
+// ================= RESIZE =================
+window.addEventListener("resize",()=>{
+  width=window.innerWidth;
+  height=window.innerHeight;
+
+  renderer.setSize(width,height);
+
+  camera.left=width/-2;
+  camera.right=width/2;
+  camera.top=height/2;
+  camera.bottom=height/-2;
+  camera.updateProjectionMatrix();
+
+  mesh.geometry.dispose();
+  mesh.geometry=new THREE.PlaneGeometry(width,height);
 });
 </script>
 
