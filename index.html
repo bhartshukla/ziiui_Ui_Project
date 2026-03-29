@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Advanced Shader Scroll</title>
+<title>Clean Shader Scroll</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Bebas Neue',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 body{background:#0a0a0a;color:white;overflow-x:hidden;}
 
 .section{
@@ -19,15 +19,35 @@ body{background:#0a0a0a;color:white;overflow-x:hidden;}
   display:flex;
   align-items:center;
   justify-content:center;
+  padding:60px;
   position:relative;
   z-index:2;
 }
 
-.section h1{
-  font-size:8vw;
+.content{
+  max-width:800px;
   text-align:center;
-  pointer-events:none;
-  mix-blend-mode: difference;
+}
+
+h1{
+  font-size:4rem;
+  margin-bottom:20px;
+}
+
+p{
+  font-size:1.1rem;
+  opacity:0.8;
+  line-height:1.6;
+}
+
+button{
+  margin-top:25px;
+  padding:12px 28px;
+  border:none;
+  background:white;
+  color:black;
+  cursor:pointer;
+  font-weight:600;
 }
 
 #gl-container{
@@ -40,36 +60,53 @@ body{background:#0a0a0a;color:white;overflow-x:hidden;}
 
 <body>
 
-<div class="section"><h1>FIRST</h1></div>
-<div class="section"><h1>SECOND</h1></div>
-<div class="section"><h1>THIRD</h1></div>
+<div class="section">
+  <div class="content">
+    <h1>Creative Visual Experience</h1>
+    <p>Scroll to explore smooth shader-based transitions between sections.</p>
+    <button>Explore</button>
+  </div>
+</div>
+
+<div class="section">
+  <div class="content">
+    <h1>Clean & Minimal</h1>
+    <p>No unnecessary effects. Only meaningful transitions on section change.</p>
+    <button>Learn More</button>
+  </div>
+</div>
+
+<div class="section">
+  <div class="content">
+    <h1>High Performance</h1>
+    <p>Optimized for smooth experience with controlled GPU usage.</p>
+    <button>Get Started</button>
+  </div>
+</div>
 
 <div id="gl-container"></div>
 
 <script>
 gsap.registerPlugin(ScrollTrigger);
 
-// ================= IMAGES =================
-const images = ["image.png","image1.png","image.png"];
+// ✅ IMAGES
+const images = ["image.png","image1.png","image2.png"];
 
-// ================= THREE =================
+// THREE SETUP
 let scene = new THREE.Scene();
-
 let width = window.innerWidth;
 let height = window.innerHeight;
 
 let camera = new THREE.OrthographicCamera(
-  width/-2, width/2,
-  height/2, height/-2,
-  -1, 1
+  width/-2,width/2,height/2,height/-2,-1,1
 );
 
-let renderer = new THREE.WebGLRenderer({ antialias:true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+let renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.5));
 renderer.setSize(width,height);
 document.getElementById("gl-container").appendChild(renderer.domElement);
 
-// ================= TEXTURES =================
+// TEXTURES
 const loader = new THREE.TextureLoader();
 let textures = images.map(src=>{
   let t = loader.load(src);
@@ -77,15 +114,12 @@ let textures = images.map(src=>{
   return t;
 });
 
-// ================= SHADER =================
+// SHADER
 const material = new THREE.ShaderMaterial({
   uniforms:{
     u_texture0:{value:textures[0]},
     u_texture1:{value:textures[1]},
-    u_progress:{value:0},
-    u_time:{value:0},
-    u_mouse:{value:new THREE.Vector2(0.5,0.5)},
-    u_hover:{value:0}
+    u_progress:{value:0}
   },
 
   vertexShader:`
@@ -100,110 +134,72 @@ const material = new THREE.ShaderMaterial({
     uniform sampler2D u_texture0;
     uniform sampler2D u_texture1;
     uniform float u_progress;
-    uniform float u_time;
-    uniform vec2 u_mouse;
-    uniform float u_hover;
     varying vec2 vUv;
 
     void main(){
 
       vec2 uv = vUv;
 
-      // 🔥 DISTORTION (stronger)
-      float dist = distance(uv, u_mouse);
-      float ripple = sin(dist*20.0 - u_time*5.0) * 0.03 * u_hover;
+      // CLEAN DISTORTION
+      float wave = sin(uv.y*8.0) * 0.05;
 
-      float wave = sin(uv.y*10.0 + u_time*2.0) * 0.05;
+      vec2 uv0 = uv + wave*(1.0-u_progress);
+      vec2 uv1 = uv - wave*u_progress;
 
-      vec2 uv0 = uv + wave*(1.0-u_progress) + ripple;
-      vec2 uv1 = uv - wave*u_progress - ripple;
-
-      // 🔥 ZOOM EFFECT
+      // ZOOM EFFECT
       uv0 = mix(uv0, 0.5 + (uv0-0.5)*1.2, u_progress);
       uv1 = mix(uv1, 0.5 + (uv1-0.5)*0.8, u_progress);
 
-      float rgb = 0.02 * sin(u_progress*3.14);
-
-      vec4 tex0 = vec4(
-        texture2D(u_texture0, uv0+vec2(rgb,0)).r,
-        texture2D(u_texture0, uv0).g,
-        texture2D(u_texture0, uv0-vec2(rgb,0)).b,
-        1.0
-      );
-
-      vec4 tex1 = vec4(
-        texture2D(u_texture1, uv1-vec2(rgb,0)).r,
-        texture2D(u_texture1, uv1).g,
-        texture2D(u_texture1, uv1+vec2(rgb,0)).b,
-        1.0
-      );
-
       float prog = smoothstep(0.0,1.0,u_progress);
+
+      vec4 tex0 = texture2D(u_texture0, uv0);
+      vec4 tex1 = texture2D(u_texture1, uv1);
 
       gl_FragColor = mix(tex0, tex1, prog);
     }
   `
 });
 
-// ================= MESH =================
 const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width,height), material);
 scene.add(mesh);
 
-// ================= SCROLL =================
+// SCROLL TRANSITION ONLY
 const sections = document.querySelectorAll(".section");
-let currentIndex = 0;
+let current = 0;
 
-sections.forEach((section,i)=>{
+sections.forEach((sec,i)=>{
   ScrollTrigger.create({
-    trigger: section,
+    trigger: sec,
     start:"top center",
-    end:"bottom center",
     onEnter:()=>change(i),
     onEnterBack:()=>change(i)
   });
 });
 
-function change(index){
-  if(index===currentIndex) return;
+function change(i){
+  if(i===current) return;
 
   gsap.to(material.uniforms.u_progress,{
     value:1,
-    duration:1.2,
-    ease:"power3.inOut",
-    onStart:()=>{
-      material.uniforms.u_texture1.value = textures[index];
-    },
+    duration:1,
+    ease:"power2.inOut",
+    onStart:()=>material.uniforms.u_texture1.value=textures[i],
     onComplete:()=>{
-      material.uniforms.u_texture0.value = textures[index];
-      material.uniforms.u_progress.value = 0;
-      currentIndex=index;
+      material.uniforms.u_texture0.value=textures[i];
+      material.uniforms.u_progress.value=0;
+      current=i;
     }
   });
 }
 
-// ================= MOUSE =================
-window.addEventListener("mousemove",(e)=>{
-  material.uniforms.u_mouse.value.x = e.clientX/width;
-  material.uniforms.u_mouse.value.y = 1 - e.clientY/height;
-});
-
-// hover intensity
-window.addEventListener("mouseenter",()=>{
-  gsap.to(material.uniforms.u_hover,{value:1,duration:0.5});
-});
-window.addEventListener("mouseleave",()=>{
-  gsap.to(material.uniforms.u_hover,{value:0,duration:0.5});
-});
-
-// ================= RENDER =================
-function render(t){
-  material.uniforms.u_time.value = t*0.001;
+// RENDER (no heavy animation now)
+function render(){
   renderer.render(scene,camera);
   requestAnimationFrame(render);
 }
 render();
 
-// ================= RESIZE =================
+// RESIZE
 window.addEventListener("resize",()=>{
   width=window.innerWidth;
   height=window.innerHeight;
