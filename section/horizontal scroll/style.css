@@ -1,60 +1,149 @@
-*{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Bebas Neue', sans-serif;
+
+
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');   
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 html, body {
-  height: 100%;
-  width: 100%;
+    width: 100vw;
+    overflow-x: hidden;
+    background: #f5f5f5;
+    font-family: Raleway, sans-serif;
 }
 
-header, footer {
-  height: 100vh;
-  width: 100%;
-  background-color: #0e0e0e;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  h1,h2{
-      font-size: 7vmax;
-      color: #fff;
-      text-align: center;
-      line-height: 1;
-      font-weight: 500;
-  }
+h1{
+    position: fixed;
+    left: 5rem;
+    top: 2vh;
+    font-size: 5vw;
+    font-weight: 600;
 }
 
-#gl-container {
-  width: 100%;
-  position: relative;
+h2{
+    position: fixed;
+    bottom: 2vh;
+    left: 5rem;
+    text-align: center;
 }
 
-#gl-scroller {
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  background-color: #0e0e0e;
-  position: sticky;
-  inset: 0;
+h2 span{
+    font-weight: 300;
+    font-size: 1rem;
+    color: #0000007b;
+    display: block;
 }
 
-.gl {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  z-index: 999;
+.progress{
+    position: fixed;
+    bottom: 4vh;
+    right: 5rem;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
 }
 
-.gl-inner {
-  height: 100vh;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  p{
-    font-size: 10vmax;
+.progress-amount{
+    margin-left: 0.5rem;
+    font-size: 1.2rem;
+}
+
+/* ================= NEW HOVER EFFECT ================= */
+
+.card {
+    width: 300px;
+    height: fit-content;
+    margin-right: 2rem;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.card img {
+    width: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s ease;
+}
+
+/* Zoom */
+.card:hover img {
+    transform: scale(1.1);
+}
+
+/* Overlay */
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+    opacity: 0;
+    transition: 0.4s ease;
+}
+
+/* Overlay text */
+.overlay h3 {
     color: #fff;
-  }
+    font-size: 1.2rem;
+    transform: translateY(20px);
+    transition: 0.4s ease;
 }
+
+/* Hover trigger */
+.card:hover .overlay {
+    opacity: 1;
+}
+
+.card:hover .overlay h3 {
+    transform: translateY(0);
+}
+
+/* ================= EXISTING ================= */
+
+.card p {
+    margin-top: 0.75rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.scroll-section {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.scroll-container {
+    display: flex;
+    align-items: flex-end;
+    width: fit-content;
+    margin-top: 20vh;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    h1 { font-size: 7vw; left: 1.5rem; }
+    h2 { left: 1.5rem; bottom: 4vh; }
+    h2 span { font-size: 0.9rem; }
+    .progress { right: 1.5rem; bottom: 4vh; font-size: 0.7rem; }
+    .progress-amount { font-size: 1rem; }
+}
+
+@media (max-width: 480px) {
+    h1 { font-size: 10vw; left: 1rem; top: 1.5vh; }
+    h2 { left: 1rem; bottom: 3vh; }
+    h2 span { display: inline; }
+    .progress { top: 2vh; right: 1rem; bottom: auto; font-size: 0; }
+    .progress-amount { font-size: 1rem; margin-left: 0; }
+    .scroll-container { margin-top: 12vh; }
+}
+
