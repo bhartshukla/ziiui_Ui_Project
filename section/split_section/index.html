@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scroll Flip Experience</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Lenis -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --cream:   #f5f0e8;
+      --ink:     #0d0d0d;
+      --rust:    #c0392b;
+      --gold:    #c9a84c;
+      --muted:   #7a7568;
+      --card-h:  520px;
+    }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      background: var(--ink);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1.2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 60% 40%, rgba(201,168,76,.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .75rem;
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 11vw, 9rem);
+      line-height: .92;
+      letter-spacing: .01em;
+      color: var(--cream);
+    }
+    .hero p {
+      max-width: 38ch;
+      font-size: 1rem;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .6rem;
+      font-size: .65rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .scroll-hint span {
+      display: block;
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: drip 1.6s ease-in-out infinite;
+    }
+    @keyframes drip {
+      0%,100% { opacity: .3; transform: scaleY(.6); transform-origin: top; }
+      50%      { opacity: 1;  transform: scaleY(1);  transform-origin: top; }
+    }
+
+    /* ─── SPACER before section ─── */
+    .spacer { height: 18vh; }
+
+    /* ─── SCROLL SECTION ─── */
+    .scroll-section {
+      /* tall pinned container */
+      height: 420vh;
+      position: relative;
+    }
+
+    .sticky-wrap {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1400px;
+    }
+
+    /* ─── IMAGE STAGE ─── */
+    .img-stage {
+      width: 100%;
+      height: var(--card-h);
+      position: relative;
+      /* starts scaled-up slightly; GSAP will shrink it */
+      transform: scale(1.08);
+    }
+
+    /* The full image shown before the split */
+    .img-full {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 4px;
+    }
+    .img-full img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ─── THREE CARD COLUMNS ─── */
+    .cards-row {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      gap: 0;
+      /* hidden until GSAP fades it in */
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .card-wrap {
+      flex: 1;
+      height: 100%;
+      perspective: 900px;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateY(0deg);
+      border-radius: 0;
+    }
+    .card-wrap:first-child .card { border-radius: 4px 0 0 4px; }
+    .card-wrap:last-child  .card { border-radius: 0 4px 4px 0; }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      overflow: hidden;
+    }
+
+    /* FRONT – slice of the same image */
+    .card-front img {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      object-fit: cover;
+      /* width 300% so each card shows 1/3 */
+      width: 300%;
+      pointer-events: none;
+      display: block;
+    }
+    .card-wrap:nth-child(1) .card-front img { left: 0%; }
+    .card-wrap:nth-child(2) .card-front img { left: -100%; }
+    .card-wrap:nth-child(3) .card-front img { left: -200%; }
+
+    /* BACK – content panel */
+    .card-back {
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2.8rem 2.4rem;
+    }
+    .card-wrap:nth-child(1) .card-back { background: #1a1209; }
+    .card-wrap:nth-child(2) .card-back { background: #0f1a14; }
+    .card-wrap:nth-child(3) .card-back { background: #0e101a; }
+
+    .back-tag {
+      font-size: .65rem;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+    .back-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      line-height: 1;
+      color: var(--cream);
+      margin-bottom: 1rem;
+    }
+    .back-body {
+      font-size: .9rem;
+      font-weight: 300;
+      line-height: 1.75;
+      color: var(--muted);
+      max-width: 28ch;
+    }
+    .back-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      margin-top: 1.8rem;
+      font-size: .75rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--cream);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,.2);
+      padding-bottom: .35rem;
+      width: fit-content;
+      transition: color .25s, border-color .25s;
+    }
+    .back-cta:hover { color: var(--gold); border-color: var(--gold); }
+    .back-cta svg { width: 14px; height: 14px; }
+
+    /* separator lines between cards */
+    .card-sep {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255,255,255,.06);
+      pointer-events: none;
+      z-index: 10;
+    }
+    .card-sep:nth-child(1) { left: calc(33.333% - .5px); }
+    .card-sep:nth-child(2) { left: calc(66.666% - .5px); }
+
+    /* ─── AFTER SECTION ─── */
+    .outro {
+      height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 5vw, 4.5rem);
+      color: var(--muted);
+      letter-spacing: .04em;
+    }
+
+    /* ─── GRAIN OVERLAY ─── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      opacity: .025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── HERO ─── -->
+  <section class="hero">
+    <p class="hero-label">Scroll Experience</p>
+    <h1>Beyond<br>The Frame</h1>
+    <p>A journey through perspective. Scroll down to watch reality split and reveal what lies beneath the surface.</p>
+    <div class="scroll-hint">
+      scroll
+      <span></span>
+    </div>
+  </section>
+
+  <div class="spacer"></div>
+
+  <!-- ─── SCROLL SECTION ─── -->
+  <section class="scroll-section" id="flip-section">
+    <div class="sticky-wrap">
+      <div class="img-stage">
+
+        <!-- Full image (visible at start, fades out when cards appear) -->
+        <div class="img-full" id="imgFull">
+          <img
+            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=85&auto=format&fit=crop"
+            alt="Mountain landscape"
+          />
+        </div>
+
+        <!-- Three card columns -->
+        <div class="cards-row" id="cardsRow">
+
+          <!-- Separator lines -->
+          <div class="card-sep"></div>
+          <div class="card-sep"></div>
+
+          <!-- Card 1 -->
+          <div class="card-wrap">
+            <div class="card" id="card1">
+              <div class="card-face card-front">
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=85&auto=format&fit=crop" alt="" />
+              </div>
+              <div class="card-face card-back">
+                <span class="back-tag">01 — Solitude</span>
+                <h2 class="back-title">Where Silence<br>Has a Shape</h2>
+                <p class="back-body">High-altitude ridges where the wind forgets its name, and every breath feels borrowed from the sky above.</p>
+                <a href="#" class="back-cta">
+                  Explore
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M9 3l5 5-5 5"/></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="card-wrap">
+            <div class="card" id="card2">
+              <div class="card-face card-front">
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=85&auto=format&fit=crop" alt="" />
+              </div>
+              <div class="card-face card-back">
+                <span class="back-tag">02 — Altitude</span>
+                <h2 class="back-title">Above the<br>Cloud Line</h2>
+                <p class="back-body">The summit exists in two worlds at once — rooted in stone, breathing the same air as passing clouds.</p>
+                <a href="#" class="back-cta">
+                  Discover
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M9 3l5 5-5 5"/></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="card-wrap">
+            <div class="card" id="card3">
+              <div class="card-face card-front">
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=85&auto=format&fit=crop" alt="" />
+              </div>
+              <div class="card-face card-back">
+                <span class="back-tag">03 — Light</span>
+                <h2 class="back-title">Golden Hour<br>Permanence</h2>
+                <p class="back-body">At dusk the peaks catch fire. For seven minutes each evening, the world is dipped in amber and everything slows.</p>
+                <a href="#" class="back-cta">
+                  Journey
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M9 3l5 5-5 5"/></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /cards-row -->
+      </div><!-- /img-stage -->
+    </div><!-- /sticky-wrap -->
+  </section>
+
+  <div class="outro">Keep Scrolling the World ↓</div>
+
+  <script>
+    /* ─────────────────────────────────────────────
+       1. LENIS SMOOTH SCROLL
+    ───────────────────────────────────────────── */
+    const lenis = new Lenis({
+      duration: 1.25,
+      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smooth: true,
+    });
+
+    function rafLoop(time) {
+      lenis.raf(time);
+      requestAnimationFrame(rafLoop);
+    }
+    requestAnimationFrame(rafLoop);
+
+    // Connect Lenis to GSAP ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(time => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+
+    /* ─────────────────────────────────────────────
+       2. REGISTER SCROLLTRIGGER
+    ───────────────────────────────────────────── */
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* ─────────────────────────────────────────────
+       3. REFERENCES
+    ───────────────────────────────────────────── */
+    const section   = document.getElementById('flip-section');
+    const imgStage  = document.querySelector('.img-stage');
+    const imgFull   = document.getElementById('imgFull');
+    const cardsRow  = document.getElementById('cardsRow');
+    const cards     = [
+      document.getElementById('card1'),
+      document.getElementById('card2'),
+      document.getElementById('card3'),
+    ];
+
+    /* ─────────────────────────────────────────────
+       4. MASTER TIMELINE  (420vh worth of scroll)
+          Progress 0 → 1 maps to 4 phases:
+          Phase A  0.00 – 0.15  → image enters (scale 1.08 → 1)
+          Phase B  0.15 – 0.38  → image shrinks inward (scale 1 → 0.82, slight Y shift)
+          Phase C  0.38 – 0.52  → crossfade full-image → cards-row
+          Phase D  0.52 – 1.00  → each card flips (staggered)
+    ───────────────────────────────────────────── */
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1.4,        // smooth scrubbing lag
+      }
+    });
+
+    /* Phase A — image enters from slight scale-up */
+    tl.to(imgStage, {
+      scale: 1,
+      duration: 0.15,
+      ease: 'power2.out',
+    }, 0);
+
+    /* Phase B — image scales down / moves inward */
+    tl.to(imgStage, {
+      scale: 0.82,
+      y: 18,
+      duration: 0.23,
+      ease: 'power1.inOut',
+    }, 0.15);
+
+    /* Phase C — crossfade to split cards */
+    tl.to(imgFull, {
+      opacity: 0,
+      duration: 0.12,
+      ease: 'power1.in',
+    }, 0.38);
+
+    tl.to(cardsRow, {
+      opacity: 1,
+      pointerEvents: 'auto',
+      duration: 0.12,
+      ease: 'power1.out',
+    }, 0.40);
+
+    /* Phase D — staggered card flips */
+    const flipStart = 0.52;
+    const flipDuration = 0.22;
+    const stagger = 0.10; // offset between cards
+
+    cards.forEach((card, i) => {
+      tl.to(card, {
+        rotateY: -180,
+        duration: flipDuration,
+        ease: 'power2.inOut',
+      }, flipStart + i * stagger);
+    });
+
+    /* ─────────────────────────────────────────────
+       5. OPTIONAL: subtle parallax on hero text
+    ───────────────────────────────────────────── */
+    gsap.to('.hero h1', {
+      yPercent: -30,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true,
+      }
+    });
+    gsap.to('.hero p, .hero-label', {
+      yPercent: -18,
+      opacity: 0,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.hero',
+        start: '30% top',
+        end: 'bottom top',
+        scrub: true,
+      }
+    });
+  </script>
+</body>
+</html>
