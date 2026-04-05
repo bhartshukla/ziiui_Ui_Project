@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Noisy Pixel Shader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Satoshi:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html {
+      /* let native scroll happen but hide the bar */
+      scrollbar-width: none;
+    }
+    html::-webkit-scrollbar { display: none; }
+
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Satoshi', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── SECTION WRAPPERS ─────────────────────────────────── */
+    .section {
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section .label {
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      font-weight: 400;
+    }
+
+    .section h1 {
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 300;
+      text-align: center;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .section h1 em {
+      font-style: italic;
+      font-weight: 300;
+      color: rgba(255,255,255,0.45);
+    }
+
+    /* ── SCROLL HINT ──────────────────────────────────────── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      animation: fadeIn 1s 1.4s ease forwards;
+    }
+    .scroll-hint span {
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+    }
+    .scroll-hint .line {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+      animation: lineSlide 1.8s 1.8s ease infinite;
+      transform-origin: top;
+      transform: scaleY(0);
+    }
+
+    /* ── WEBGL STAGE ──────────────────────────────────────── */
+    .webgl {
+      height: 100vh;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    .webgl img {
+      /* hidden but available for texture sampling */
+      position: absolute;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      pointer-events: none;
+      user-select: none;
+    }
+    .webgl canvas {
+      position: absolute;
+      inset: 0;
+      width: 100% !important;
+      height: 200% !important;
+      pointer-events: none;
+      display: block;
+    }
+
+    /* progress counter overlay */
+    .progress-overlay {
+      position: absolute;
+      bottom: 32px;
+      right: 40px;
+      z-index: 10;
+      pointer-events: none;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      font-family: 'Satoshi', monospace;
+      transition: color 0.4s ease;
+    }
+
+    /* ── END SECTION ─────────────────────────────────────── */
+    .section-end {
+      background: linear-gradient(to bottom, #000 0%, #0a0a0a 100%);
+    }
+    .section-end h1 {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 1s var(--ease), transform 1s var(--ease);
+    }
+    .section-end.visible h1 {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── KEYFRAMES ───────────────────────────────────────── */
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    @keyframes lineSlide {
+      0%   { transform: scaleY(0); transform-origin: top; }
+      45%  { transform: scaleY(1); transform-origin: top; }
+      55%  { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- INTRO SECTION -->
+  <div class="section">
+    <span class="label">WebGL — GLSL — Three.js</span>
+    <h1>Noisy Pixel<br /><em>Shader</em></h1>
+    <div class="scroll-hint">
+      <div class="line"></div>
+      <span>Scroll</span>
+    </div>
+  </div>
+
+  <!-- WEBGL SECTION -->
+  <div class="webgl" id="webglStage">
+    <img
+      id="sourceImg"
+      src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=2070&q=85&auto=format&fit=crop"
+      crossorigin="anonymous"
+      alt=""
+    />
+    <div class="progress-overlay" id="progressDisplay">0%</div>
+  </div>
+
+  <!-- END SECTION -->
+  <div class="section section-end" id="endSection">
+    <span class="label">Fin — The reveal is complete</span>
+    <h1>Through<br /><em>the noise</em></h1>
+  </div>
+
+  <!-- CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <script>
+  /* ================================================================
+     SMOOTH LERP UTILITY
+  ================================================================ */
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  // Smooth exponential lerp — frame-rate independent
+  const damp = (a, b, lambda, dt) => lerp(a, b, 1 - Math.exp(-lambda * dt));
+
+  /* ================================================================
+     LENIS — SMOOTH SCROLL ENGINE (inline, no CDN)
+     Proper momentum with easing
+  ================================================================ */
+  class Lenis {
+    constructor({ lerp: lerpFactor = 0.085, smoothWheel = true } = {}) {
+      this.lerpFactor = lerpFactor;
+      this.scroll     = window.scrollY;
+      this.target     = window.scrollY;
+      this.velocity   = 0;
+      this.direction  = 0;
+      this._lastScroll = window.scrollY;
+      this._raf       = null;
+
+      this._onWheel = this._onWheel.bind(this);
+      this._onScroll = this._onScroll.bind(this);
+
+      if (smoothWheel) {
+        window.addEventListener('wheel', this._onWheel, { passive: false });
+      }
+      window.addEventListener('scroll', this._onScroll, { passive: true });
+    }
+
+    _onWheel(e) {
+      // Let native scroll happen — we just track it
+    }
+
+    _onScroll() {
+      this.target = window.scrollY;
+    }
+
+    raf(time) {
+      if (!this._lt) this._lt = time;
+      const rawDt = (time - this._lt) / 1000;
+      this._lt = time;
+      const dt = Math.min(rawDt, 0.05); // cap delta
+
+      // Smooth toward target with exponential decay
+      const prev    = this.scroll;
+      this.scroll   = damp(this.scroll, this.target, 12, dt);
+      this.velocity = (this.scroll - prev) / dt;
+      this.direction = Math.sign(this.velocity);
+    }
+
+    get scrollY() { return this.scroll; }
+    get progress() {
+      const maxScroll = document.body.scrollHeight - window.innerHeight;
+      return maxScroll > 0 ? this.scroll / maxScroll : 0;
+    }
+  }
+
+  /* ================================================================
+     SHADERS
+  ================================================================ */
+
+  /* ── Shared vertex (pass-through) ── */
+  const vert = /* glsl */`
+    varying vec2 vUv;
+    void main(){
+      vUv = uv;
+      gl_Position = vec4(position, 1.0);
+    }
+  `;
+
+  /* ── Base: cover-fit photo ── */
+  const fragBase = /* glsl */`
+    precision highp float;
+    uniform sampler2D uTexture;
+    uniform vec2 uImageSize;
+    uniform vec2 uPlaneSize;
+    varying vec2 vUv;
+
+    vec2 coverUv(vec2 uv, vec2 img, vec2 plane){
+      float ia = img.x / img.y;
+      float pa = plane.x / plane.y;
+      vec2 s = vec2(1.0);
+      if(pa > ia) s.y = ia / pa;
+      else        s.x = pa / ia;
+      return (uv - 0.5) * s + 0.5;
+    }
+
+    void main(){
+      vec2 uv = coverUv(vUv, uImageSize, uPlaneSize);
+      // clamp so we don't sample outside
+      uv = clamp(uv, 0.0, 1.0);
+      gl_FragColor = texture2D(uTexture, uv);
+    }
+  `;
+
+  /* ── Cover: pixel-grid + glyph noise layer ── */
+  const fragCover = /* glsl */`
+    precision highp float;
+
+    uniform float uProgress;      // smoothed 0→1
+    uniform float uRawProgress;   // direct scroll, for shimmer
+    uniform float uPixelSize;
+    uniform float uTime;
+    uniform vec2  uPlaneSize;
+    uniform sampler2D uChars;
+    uniform float uCharCount;
+    varying vec2 vUv;
+
+    /* ── PRNG ── */
+    float hash(vec2 p){
+      return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+    }
+    float hash3(vec3 p){
+      return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453123);
+    }
+
+    /* ── smooth cubic ── */
+    float cubic(float x){ return x*x*(3.0 - 2.0*x); }
+
+    void main(){
+      /* ── pixel grid ── */
+      vec2 gridSize  = uPlaneSize / uPixelSize;
+      vec2 pixelId   = floor(vUv * gridSize);
+      vec2 gridUv    = pixelId / gridSize;
+      vec2 gridFrac  = fract(vUv * gridSize);
+
+      /* ── per-block staggered reveal ── */
+      float blockRand  = hash(pixelId);
+      float progressY  = 1.0 - gridUv.y;              // top=0, bottom=1
+      float rowRand    = hash(vec2(0.0, pixelId.y));
+
+      // stagger: pixels near top reveal earlier
+      float delay      = progressY + 0.35*blockRand + 0.05*rowRand;
+      float blockReveal = uProgress - delay;
+
+      /* ── soft block alpha using smoothstep instead of step ──
+         This gives the buttery dissolve edge                   */
+      float softEdge = 0.025;                          // wider = smoother front
+      float blockAlpha = 1.0 - smoothstep(-softEdge, softEdge, blockReveal);
+
+      if(blockAlpha < 0.004) discard;                  // fully revealed → skip
+
+      /* ── letter shimmer / cycling ──
+         The char index changes as uRawProgress ticks so glyphs
+         visibly cycle/shimmer while the block is visible.      */
+      float timeFlicker = floor(uTime * 8.0);          // flicker at 8fps feel
+      float charIndex   = floor(hash3(vec3(pixelId, timeFlicker)) * uCharCount);
+
+      /* ── sample glyph from atlas ── */
+      float fontMargin = 0.08 + 0.08 * hash(pixelId + 17.3);
+      vec2  charUV     = vec2(
+        gridFrac.x * (1.0 - 2.0*fontMargin) + fontMargin,
+        (charIndex + gridFrac.y) / uCharCount
+      );
+      float letterMask = texture2D(uChars, charUV).r;
+
+      /* ── letter appear / fade tied to block lifecycle ──      */
+      float letterAppearBase  = -0.20;
+      float letterAppearThresh = letterAppearBase + 0.07*blockRand;
+      // letterShow: 0 when block just appeared, rises, then falls to 0 as block leaves
+      float letterShow = smoothstep(letterAppearThresh, 0.0, blockReveal) * blockAlpha;
+      letterShow *= step(0.002, uProgress);
+
+      /* soft threshold on the glyph bitmap */
+      float thresh     = 0.28 + 0.10*hash(pixelId + 333.0);
+      float letterAlpha = smoothstep(thresh - 0.08, thresh + 0.08, letterMask)
+                        * pow(max(letterShow, 0.0), 0.65 + 0.3*hash(pixelId + 544.0));
+
+      /* ── occasional secondary glyph for more variety ── */
+      if(letterAlpha < 0.4 && hash(pixelId + uRawProgress*7.577) > 0.62){
+        float charIndex2   = mod(charIndex + 1.0, uCharCount);
+        vec2  charUV2      = vec2(charUV.x, (charIndex2 + gridFrac.y)/uCharCount);
+        float letterMask2  = texture2D(uChars, charUV2).r;
+        float letterAlpha2 = smoothstep(thresh-0.08, thresh+0.08, letterMask2) * letterShow;
+        letterAlpha = max(letterAlpha, letterAlpha2 * 0.55);
+      }
+
+      /* ── block colour: near-black tile ── */
+      float lightness = 0.03 + 0.04*hash(pixelId + 77.0);
+      vec3  blockColor = vec3(lightness);
+
+      /* ── glyph colour: warm near-white ── */
+      vec3 glyphBase = mix(vec3(0.85,0.86,0.92), vec3(0.98,0.97,0.95), hash(pixelId+149.0));
+      vec3 glyphColor = mix(glyphBase, vec3(1.0), 0.18 + 0.24*hash(pixelId+999.0));
+
+      /* ── subtle inner vignette on each cell ── */
+      vec2 cellCenter = gridFrac - 0.5;
+      float innerVig  = 1.0 - smoothstep(0.3, 0.5, length(cellCenter));
+      blockColor *= 0.7 + 0.3*innerVig;
+
+      /* ── final composite ── */
+      vec3  finalRgb  = mix(blockColor, glyphColor, letterAlpha);
+      float finalAlpha = blockAlpha;
+
+      gl_FragColor = vec4(finalRgb, finalAlpha);
+    }
+  `;
+
+  /* ================================================================
+     CHAR ATLAS
+  ================================================================ */
+  function buildAtlas(chars, cellPx = 96) {
+    const canvas = document.createElement('canvas');
+    canvas.width  = cellPx;
+    canvas.height = cellPx * chars.length;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle    = '#fff';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `bold ${Math.round(cellPx * 0.70)}px "Courier New", monospace`;
+    chars.forEach((ch, i) => {
+      ctx.fillText(ch, cellPx / 2, cellPx * i + cellPx / 2);
+    });
+    return canvas;
+  }
+
+  /* ================================================================
+     MAIN
+  ================================================================ */
+  gsap.registerPlugin(ScrollTrigger);
+
+  const CHARS = [
+    '0','1','2','3','4','5','6','7','8','9',
+    'A','B','C','D','E','F','G','H','I','J','K','L','M',
+    'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+    '#','@','!','?','%','&','*','+','-','=','~','^',
+    '░','▒','▓','█','■','□','▪','▫','◆','◇','●','○','◎','⊕'
+  ];
+
+  const stage   = document.getElementById('webglStage');
+  const img     = document.getElementById('sourceImg');
+  const display = document.getElementById('progressDisplay');
+  img.style.opacity = '0';
+
+  function waitImg(el) {
+    return new Promise(res => {
+      if (el.complete && el.naturalWidth) return res(el);
+      el.onload = el.onerror = () => res(el);
+    });
+  }
+
+  async function boot() {
+    await waitImg(img);
+
+    const W = stage.clientWidth;
+    const H = stage.clientHeight;
+
+    /* ── Three.js renderer ── */
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(W, H);
+    renderer.autoClear = false;
+    renderer.sortObjects = false;
+    stage.appendChild(renderer.domElement);
+
+    /* ── Scene + orthographic camera ── */
+    const scene  = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const geo    = new THREE.PlaneGeometry(2, 2);
+
+    /* ── Photo texture ── */
+    const imgTex = new THREE.Texture(img);
+    imgTex.needsUpdate = true;
+    imgTex.minFilter   = THREE.LinearFilter;
+    imgTex.magFilter   = THREE.LinearFilter;
+    imgTex.generateMipmaps = false;
+
+    /* ── Base mesh ── */
+    const baseMat = new THREE.ShaderMaterial({
+      vertexShader:   vert,
+      fragmentShader: fragBase,
+      uniforms: {
+        uTexture:   { value: imgTex },
+        uImageSize: { value: new THREE.Vector2(img.naturalWidth || 2070, img.naturalHeight || 1380) },
+        uPlaneSize: { value: new THREE.Vector2(W, H) },
+      },
+      depthTest: false,
+    });
+    scene.add(new THREE.Mesh(geo, baseMat));
+
+    /* ── Char atlas ── */
+    const atlasCvs  = buildAtlas(CHARS, 96);
+    const charsTex  = new THREE.CanvasTexture(atlasCvs);
+    charsTex.minFilter = THREE.LinearFilter;
+    charsTex.magFilter = THREE.LinearFilter;
+    charsTex.generateMipmaps = false;
+
+    /* ── Cover mesh ── */
+    const coverMat = new THREE.ShaderMaterial({
+      vertexShader:   vert,
+      fragmentShader: fragCover,
+      uniforms: {
+        uProgress:    { value: 0.0 },
+        uRawProgress: { value: 0.0 },
+        uPixelSize:   { value: 22.0 },
+        uTime:        { value: 0.0 },
+        uPlaneSize:   { value: new THREE.Vector2(W, H) },
+        uChars:       { value: charsTex },
+        uCharCount:   { value: CHARS.length },
+      },
+      transparent: true,
+      depthWrite:  false,
+      depthTest:   false,
+    });
+    scene.add(new THREE.Mesh(geo, coverMat));
+
+    /* ── Resize ── */
+    window.addEventListener('resize', () => {
+      const w = stage.clientWidth;
+      const h = stage.clientHeight;
+      renderer.setSize(w, h);
+      baseMat.uniforms.uPlaneSize.value.set(w, h);
+      coverMat.uniforms.uPlaneSize.value.set(w, h);
+    });
+
+    /* ── Scroll state ── */
+    // Raw scroll progress (0→1) mapped from trigger
+    let rawProgress    = 0;
+    // Smoothed progress — this is what the shader receives
+    let smoothProgress = 0;
+
+    ScrollTrigger.create({
+      trigger: stage,
+      start:   'top bottom',
+      end:     'bottom top',
+      onUpdate(self) {
+        // Stretch the reveal to use 70% of the trigger window
+        rawProgress = gsap.utils.clamp(0, 1, (self.progress - 0.05) / 0.85);
+      },
+    });
+
+    /* End section fade-in */
+    ScrollTrigger.create({
+      trigger: '#endSection',
+      start: 'top 80%',
+      onEnter: () => document.getElementById('endSection').classList.add('visible'),
+      onLeaveBack: () => document.getElementById('endSection').classList.remove('visible'),
+    });
+
+    /* ── Lenis smooth scroll ── */
+    const lenis = new Lenis({ lerp: 0.085 });
+
+    /* ── RAF loop ── */
+    let prevTime = 0;
+
+    function loop(time) {
+      requestAnimationFrame(loop);
+      const dt = Math.min((time - prevTime) / 1000, 0.05);
+      prevTime = time;
+
+      /* smooth scroll */
+      lenis.raf(time);
+      ScrollTrigger.update();
+
+      /* ── BUTTER: exponential lerp toward rawProgress ──
+         lambda = 6.5 → ~95% of the way there in ~0.46s   */
+      smoothProgress = damp(smoothProgress, rawProgress, 6.5, dt);
+
+      /* push to shader */
+      coverMat.uniforms.uProgress.value    = smoothProgress;
+      coverMat.uniforms.uRawProgress.value = rawProgress;
+      coverMat.uniforms.uTime.value        = time * 0.001;
+
+      /* progress display */
+      const pct = Math.round(smoothProgress * 100);
+      display.textContent = pct + '%';
+      display.style.color = smoothProgress > 0.5
+        ? 'rgba(255,255,255,0.12)'
+        : 'rgba(255,255,255,0.25)';
+
+      /* render */
+      renderer.clear();
+      renderer.render(scene, camera);
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  boot();
+  </script>
+</body>
+</html>
