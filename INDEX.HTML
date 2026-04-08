@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+  <title>Bharat Shukla — JavaScript Developer</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,700;1,9..40,300&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  
+  <!-- GSAP & Lenis -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.3.15/dist/lenis.min.js"></script>
+  
+  <style>
+    /* ============================================
+       RESET & VARIABLES
+    ============================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --cream: #f0ede6;
+      --ink: #0c0b09;
+      --gold: #c8a96e;
+      --rust: #b5461e;
+      --muted: #7a7264;
+      --border: rgba(200,169,110,0.18);
+    }
+
+    html { 
+      scroll-behavior: auto; 
+      overflow-x: hidden;
+    }
+
+    body {
+      background: var(--ink);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Grain Overlay */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 9999;
+      opacity: .04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 180px;
+    }
+
+    /* ============================================
+       LOADER
+    ============================================ */
+    .loader {
+      position: fixed;
+      inset: 0;
+      background: var(--ink);
+      z-index: 10000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .loader-content {
+      text-align: center;
+    }
+
+    .loader-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 5rem);
+      letter-spacing: .3em;
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    .loader-bar {
+      width: 200px;
+      height: 1px;
+      background: var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .loader-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 100%;
+      background: var(--gold);
+      animation: loadProgress 2s ease forwards;
+    }
+
+    .loader-text {
+      margin-top: 1rem;
+      font-size: .65rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.5s;
+    }
+
+    @keyframes loadProgress {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================
+       NAVIGATION
+    ============================================ */
+    nav {
+      position: fixed; 
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      padding: 1.6rem 4rem;
+      mix-blend-mode: difference;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: .25em;
+      color: var(--cream);
+      text-decoration: none;
+      transition: opacity .3s;
+    }
+    .nav-logo:hover { opacity: 0.7; }
+
+    .nav-links {
+      display: flex; 
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--cream);
+      text-decoration: none;
+      font-size: .75rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      opacity: .6;
+      transition: opacity .3s;
+    }
+    .nav-links a:hover { opacity: 1; }
+
+    /* Mobile Menu Button */
+    .mobile-menu-btn {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 24px;
+      height: 18px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      z-index: 501;
+    }
+
+    .mobile-menu-btn span {
+      width: 100%;
+      height: 1px;
+      background: var(--cream);
+      transition: transform .3s, opacity .3s;
+    }
+
+    .mobile-menu-btn.active span:nth-child(1) {
+      transform: translateY(8.5px) rotate(45deg);
+    }
+    .mobile-menu-btn.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .mobile-menu-btn.active span:nth-child(3) {
+      transform: translateY(-8.5px) rotate(-45deg);
+    }
+
+    /* Mobile Menu Overlay */
+    .mobile-menu {
+      position: fixed;
+      inset: 0;
+      background: var(--ink);
+      z-index: 499;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .4s, visibility .4s;
+    }
+
+    .mobile-menu.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .mobile-menu ul {
+      list-style: none;
+      text-align: center;
+    }
+
+    .mobile-menu li {
+      margin: 2rem 0;
+    }
+
+    .mobile-menu a {
+      color: var(--cream);
+      text-decoration: none;
+      font-size: 2rem;
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: .1em;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .3s, color .3s;
+    }
+
+    .mobile-menu.active a {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity .4s, transform .4s, color .3s;
+    }
+
+    .mobile-menu li:nth-child(1) a { transition-delay: 0.1s; }
+    .mobile-menu li:nth-child(2) a { transition-delay: 0.2s; }
+    .mobile-menu li:nth-child(3) a { transition-delay: 0.3s; }
+    .mobile-menu li:nth-child(4) a { transition-delay: 0.4s; }
+
+    .mobile-menu a:hover { color: var(--gold); }
+
+    /* ============================================
+       HERO SECTION
+    ============================================ */
+    .hero {
+      height: 100vh;
+      display: flex; 
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 4rem 5rem;
+      position: relative; 
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute; 
+      inset: 0;
+      background: radial-gradient(ellipse at 70% 20%, rgba(200,169,110,.09) 0%, transparent 55%),
+                  radial-gradient(ellipse at 10% 80%, rgba(181,70,30,.07) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-label {
+      font-size: .7rem; 
+      letter-spacing: .42em;
+      text-transform: uppercase; 
+      color: var(--gold);
+      margin-bottom: 1.4rem;
+      opacity: 0; 
+    }
+
+    .hero-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5rem, 13vw, 11rem);
+      line-height: .9;
+      color: var(--cream);
+      opacity: 0;
+    }
+
+    .hero-name em {
+      font-style: italic;
+      font-family: 'Libre Baskerville', serif;
+      color: var(--gold);
+      font-size: .75em;
+    }
+
+    .hero-desc {
+      max-width: 420px;
+      font-size: .95rem; 
+      font-weight: 300; 
+      line-height: 1.8;
+      color: var(--muted);
+      margin-top: 1.8rem;
+      opacity: 0;
+    }
+
+    .hero-meta {
+      position: absolute; 
+      right: 4rem; 
+      bottom: 5rem;
+      text-align: right;
+      opacity: 0;
+    }
+
+    .hero-meta span {
+      display: block;
+      font-size: .68rem; 
+      letter-spacing: .3em;
+      text-transform: uppercase; 
+      color: var(--muted);
+      margin-bottom: .5rem;
+    }
+
+    .hero-meta a {
+      display: inline-flex; 
+      align-items: center; 
+      gap: .4rem;
+      color: var(--gold); 
+      text-decoration: none;
+      font-size: .78rem; 
+      letter-spacing: .15em;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: .2rem;
+      transition: color .2s, border-color .2s;
+    }
+    .hero-meta a:hover { color: var(--cream); border-color: var(--cream); }
+
+    .scroll-hint {
+      position: absolute; 
+      bottom: 5rem; 
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      gap: .6rem;
+      font-size: .6rem; 
+      letter-spacing: .36em;
+      text-transform: uppercase; 
+      color: var(--muted);
+      opacity: 0;
+    }
+
+    .scroll-hint span {
+      display: block; 
+      width: 1px; 
+      height: 50px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: drip 1.8s ease-in-out infinite;
+    }
+
+    @keyframes drip {
+      0%,100% { opacity:.25; transform: scaleY(.5); transform-origin: top; }
+      50%    { opacity:1;  transform: scaleY(1);  transform-origin: top; }
+    }
+
+    /* ============================================
+       SKILLS TICKER
+    ============================================ */
+    .ticker-wrap {
+      overflow: hidden; 
+      padding: 1.2rem 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--ink);
+    }
+
+    .ticker {
+      display: flex; 
+      gap: 3rem;
+      width: max-content;
+      animation: ticker 25s linear infinite;
+    }
+
+    .ticker:hover { animation-play-state: paused; }
+
+    .ticker span {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem; 
+      letter-spacing: .18em;
+      color: var(--muted); 
+      white-space: nowrap;
+    }
+
+    .ticker span.accent { color: var(--gold); }
+
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ============================================
+       SECTION LABEL
+    ============================================ */
+    .section-label {
+      font-size: .65rem; 
+      letter-spacing: .42em;
+      text-transform: uppercase; 
+      color: var(--gold);
+      margin-bottom: 3rem;
+    }
+
+    /* ============================================
+       ABOUT SECTION
+    ============================================ */
+    .about {
+      padding: 8rem 4rem;
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 6rem;
+      align-items: start;
+    }
+
+    .about-left .about-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5rem, 10vw, 8rem);
+      line-height: 1;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--border);
+      display: block; 
+      margin-bottom: 1rem;
+    }
+
+    .about-left .stat-grid {
+      display: grid; 
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem; 
+      margin-top: 3rem;
+    }
+
+    .stat-item .stat-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.4rem; 
+      color: var(--gold);
+      display: block;
+    }
+
+    .stat-item .stat-label {
+      font-size: .72rem; 
+      letter-spacing: .2em;
+      text-transform: uppercase; 
+      color: var(--muted);
+    }
+
+    .about-right .about-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 4vw, 3.6rem);
+      line-height: 1; 
+      color: var(--cream);
+      margin-bottom: 1.8rem;
+    }
+
+    .about-right .about-heading em {
+      font-family: 'Libre Baskerville', serif;
+      font-style: italic; 
+      color: var(--gold);
+    }
+
+    .about-right p {
+      font-size: .95rem; 
+      font-weight: 300; 
+      line-height: 1.9;
+      color: var(--muted); 
+      max-width: 52ch;
+      margin-bottom: 1rem;
+    }
+
+    /* ============================================
+       PROJECTS - PIN CARDS
+    ============================================ */
+    .projects-header {
+      padding: 5rem 4rem 0;
+      display: flex; 
+      align-items: flex-end; 
+      justify-content: space-between;
+    }
+
+    .projects-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 7vw, 6rem);
+      line-height: 1; 
+      color: var(--cream);
+    }
+
+    .projects-count {
+      font-size: .72rem; 
+      letter-spacing: .3em;
+      text-transform: uppercase; 
+      color: var(--muted);
+      padding-bottom: .5rem;
+    }
+
+    .pin-card {
+      position: relative;
+      display: flex;
+      padding: 8vh 4rem;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      perspective: 1200px;
+      background: var(--ink);
+    }
+
+    .pin-card .overlay {
+      position: absolute; 
+      inset: 0;
+      background: #000; 
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .pin-card-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 7vw; 
+      color: transparent;
+      -webkit-text-stroke: 1px var(--border);
+      line-height: 1; 
+      flex-shrink: 0;
+    }
+
+    .pin-card-content {
+      width: 62%; 
+      display: flex;
+      flex-direction: column; 
+      align-items: flex-start;
+    }
+
+    .pin-card-tag {
+      font-size: .65rem; 
+      letter-spacing: .36em;
+      text-transform: uppercase; 
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+
+    .pin-card-content h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 3.5vw, 3.2rem);
+      color: var(--cream); 
+      margin-bottom: 1.5rem;
+      line-height: 1;
+    }
+
+    .pin-card-content img {
+      width: 100%; 
+      border-radius: 4px;
+      aspect-ratio: 16/8; 
+      object-fit: cover;
+      filter: grayscale(.3);
+      transition: filter .5s;
+    }
+    .pin-card:hover .pin-card-content img { filter: grayscale(0); }
+
+    .pin-card-content p {
+      max-width: 60ch; 
+      margin-top: 1.4rem;
+      line-height: 1.8; 
+      color: var(--muted);
+      font-weight: 300; 
+      font-size: .9rem;
+    }
+
+    .pin-card-tech {
+      display: flex; 
+      gap: .6rem; 
+      flex-wrap: wrap;
+      margin-top: 1.4rem;
+    }
+
+    .tech-tag {
+      font-size: .65rem; 
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: .3rem .75rem;
+      border-radius: 2px;
+      transition: all .3s;
+    }
+    .tech-tag:hover { border-color: var(--gold); color: var(--gold); }
+
+    .pin-card-cta {
+      display: inline-flex; 
+      align-items: center; 
+      gap: .4rem;
+      margin-top: 1.8rem;
+      font-size: .72rem; 
+      letter-spacing: .2em;
+      text-transform: uppercase; 
+      color: var(--cream);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: .25rem; 
+      width: fit-content;
+      transition: color .2s, border-color .2s;
+    }
+    .pin-card-cta:hover { color: var(--gold); border-color: var(--gold); }
+    .pin-card-cta svg { width: 12px; height: 12px; }
+
+    /* ============================================
+       EXPERIENCE
+    ============================================ */
+    .experience {
+      padding: 8rem 4rem;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 6rem;
+    }
+
+    .experience-left .exp-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 4vw, 3.8rem);
+      line-height: 1; 
+      color: var(--cream);
+    }
+
+    .experience-left .exp-heading em {
+      font-family: 'Libre Baskerville', serif;
+      font-style: italic; 
+      color: var(--gold);
+    }
+
+    .exp-list { display: flex; flex-direction: column; gap: 0; }
+
+    .exp-item {
+      border-top: 1px solid var(--border);
+      padding: 2rem 0;
+      display: grid; 
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      transition: background .3s;
+      cursor: default;
+    }
+    .exp-item:last-child { border-bottom: 1px solid var(--border); }
+
+    .exp-role {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem; 
+      color: var(--cream);
+      display: block; 
+      margin-bottom: .4rem;
+    }
+
+    .exp-company {
+      font-size: .72rem; 
+      letter-spacing: .22em;
+      text-transform: uppercase; 
+      color: var(--gold);
+    }
+
+    .exp-year {
+      font-size: .72rem; 
+      letter-spacing: .22em;
+      text-transform: uppercase; 
+      color: var(--muted);
+      text-align: right; 
+      align-self: start;
+    }
+
+    .exp-desc {
+      grid-column: 1 / -1;
+      font-size: .88rem; 
+      font-weight: 300;
+      line-height: 1.8; 
+      color: var(--muted);
+    }
+
+    /* ============================================
+       PATENTS
+    ============================================ */
+    .patents {
+      padding: 5rem 4rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .patents-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      color: var(--cream); 
+      margin-bottom: 2.5rem;
+    }
+
+    .patent-list { display: flex; flex-direction: column; gap: 0; }
+
+    .patent-item {
+      border-top: 1px solid var(--border);
+      padding: 1.6rem 0;
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      gap: 2rem;
+      transition: background .3s;
+    }
+    .patent-item:last-child { border-bottom: 1px solid var(--border); }
+    .patent-item:hover { background: rgba(200,169,110,0.03); }
+
+    .patent-title {
+      font-size: .95rem; 
+      color: var(--cream);
+      font-weight: 300; 
+      max-width: 55ch;
+    }
+
+    .patent-num {
+      font-size: .68rem; 
+      letter-spacing: .22em;
+      color: var(--muted); 
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* ============================================
+       CONTACT
+    ============================================ */
+    .contact {
+      padding: 10rem 4rem 8rem;
+      text-align: center;
+      position: relative; 
+      overflow: hidden;
+    }
+
+    .contact::before {
+      content: '';
+      position: absolute; 
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, rgba(200,169,110,.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .contact-label {
+      font-size: .7rem; 
+      letter-spacing: .4em;
+      text-transform: uppercase; 
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 8vw, 7rem);
+      line-height: .95; 
+      color: var(--cream);
+      margin-bottom: 2.5rem;
+    }
+
+    .contact-heading em {
+      font-family: 'Libre Baskerville', serif;
+      font-style: italic; 
+      color: var(--gold);
+    }
+
+    .contact-email {
+      display: inline-block;
+      font-size: clamp(1.1rem, 2.5vw, 1.8rem);
+      color: var(--cream); 
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: .5rem;
+      transition: color .3s, border-color .3s;
+      letter-spacing: .04em;
+    }
+    .contact-email:hover { color: var(--gold); border-color: var(--gold); }
+
+    .contact-links {
+      display: flex; 
+      justify-content: center; 
+      gap: 2.5rem;
+      margin-top: 3rem;
+    }
+
+    .contact-links a {
+      font-size: .72rem; 
+      letter-spacing: .28em;
+      text-transform: uppercase; 
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .3s;
+    }
+    .contact-links a:hover { color: var(--gold); }
+
+    /* ============================================
+       FOOTER
+    ============================================ */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.8rem 4rem;
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+    }
+
+    footer span {
+      font-size: .68rem; 
+      letter-spacing: .22em;
+      text-transform: uppercase; 
+      color: var(--muted);
+    }
+
+    /* ============================================
+       RESPONSIVE STYLES
+    ============================================ */
+    @media (max-width: 900px) {
+      nav { padding: 1.4rem 2rem; }
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: flex; }
+      
+      .hero { padding: 0 2rem 4rem; }
+      .hero-meta { right: 2rem; bottom: 4rem; }
+      .hero-meta a { font-size: .7rem; }
+      
+      .about { 
+        grid-template-columns: 1fr; 
+        gap: 3rem; 
+        padding: 5rem 2rem; 
+      }
+      
+      .projects-header { padding: 4rem 2rem 0; }
+      .pin-card { 
+        flex-direction: column; 
+        gap: 1.5rem; 
+        padding: 5vh 2rem; 
+      }
+      .pin-card-content { width: 100%; }
+      .pin-card-num { font-size: 12vw; }
+      
+      .experience { 
+        grid-template-columns: 1fr; 
+        gap: 3rem; 
+        padding: 5rem 2rem; 
+      }
+      .exp-item { grid-template-columns: 1fr; }
+      .exp-year { text-align: left; }
+      
+      .patents { padding: 4rem 2rem; }
+      .patent-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      
+      .contact { padding: 7rem 2rem 5rem; }
+      
+      footer { 
+        padding: 1.5rem 2rem; 
+        flex-direction: column; 
+        gap: 1rem; 
+        text-align: center; 
+      }
+    }
+
+    @media (max-width: 480px) {
+      nav { padding: 1rem 1.5rem; }
+      .hero { padding: 0 1.5rem 3rem; }
+      .hero-meta { right: 1.5rem; bottom: 3rem; }
+      .hero-name { font-size: clamp(3.5rem, 12vw, 8rem); }
+      
+      .about { padding: 4rem 1.5rem; }
+      .about-left .stat-grid { gap: 1rem; }
+      .stat-item .stat-val { font-size: 1.8rem; }
+      
+      .pin-card { padding: 4vh 1.5rem; }
+      .pin-card-content h2 { font-size: 2rem; }
+      
+      .contact-heading { font-size: clamp(2.5rem, 10vw, 5rem); }
+      .contact-email { font-size: 1rem; }
+      
+      .scroll-hint { bottom: 3rem; }
+    }
+
+    /* Prevent body scroll when menu open */
+    body.menu-open { overflow: hidden; }
+  </style>
+</head>
+<body>
+
+  <!-- LOADER -->
+  <div class="loader" id="loader">
+    <div class="loader-content">
+      <div class="loader-logo">BHS</div>
+      <div class="loader-bar">
+        <div class="loader-progress"></div>
+      </div>
+      <div class="loader-text">Loading Experience</div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav>
+    <a href="#" class="nav-logo">BHS</a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Work</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <ul>
+      <li><a href="#about" class="mobile-link">About</a></li>
+      <li><a href="#projects" class="mobile-link">Work</a></li>
+      <li><a href="#experience" class="mobile-link">Experience</a></li>
+      <li><a href="#contact" class="mobile-link">Contact</a></li>
+    </ul>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <p class="hero-label">JavaScript Developer · AI & Full-Stack</p>
+    <h1 class="hero-name">Bharat<br><em>Shukla</em></h1>
+    <p class="hero-desc">Building intelligent web experiences — from pixel-perfect frontends to AI-powered systems. 60+ projects shipped. 3 patents filed.</p>
+    <div class="hero-meta">
+      <span>Based in</span>
+      <span style="color:var(--cream);font-size:.8rem;margin-bottom:.8rem;letter-spacing:normal;">Lucknow, India</span>
+      <a href="mailto:itsmebhsh@gmail.com">
+        itsmebhsh@gmail.com
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M9 3l5 5-5 5"/></svg>
+      </a>
+    </div>
+    <div class="scroll-hint">scroll<span></span></div>
+  </section>
+
+  <!-- SKILLS TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <span>JavaScript</span><span class="accent">✦</span>
+      <span>Node.js</span><span class="accent">✦</span>
+      <span>Python</span><span class="accent">✦</span>
+      <span>HTML5 · CSS</span><span class="accent">✦</span>
+      <span>Tailwind CSS</span><span class="accent">✦</span>
+      <span>Chart.js</span><span class="accent">✦</span>
+      <span>AI Integration</span><span class="accent">✦</span>
+      <span>GSAP · Three.js</span><span class="accent">✦</span>
+      <span>DSA · Java</span><span class="accent">✦</span>
+      <span>JavaScript</span><span class="accent">✦</span>
+      <span>Node.js</span><span class="accent">✦</span>
+      <span>Python</span><span class="accent">✦</span>
+      <span>HTML5 · CSS</span><span class="accent">✦</span>
+      <span>Tailwind CSS</span><span class="accent">✦</span>
+      <span>Chart.js</span><span class="accent">✦</span>
+      <span>AI Integration</span><span class="accent">✦</span>
+      <span>GSAP · Three.js</span><span class="accent">✦</span>
+      <span>DSA · Java</span><span class="accent">✦</span>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="about-left">
+      <p class="section-label">About</p>
+      <span class="about-num">01</span>
+      <div class="stat-grid">
+        <div class="stat-item">
+          <span class="stat-val">60+</span>
+          <span class="stat-label">Projects Delivered</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val">8.9</span>
+          <span class="stat-label">CGPA</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val">3</span>
+          <span class="stat-label">Patents Filed</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val">4+</span>
+          <span class="stat-label">Years Freelancing</span>
+        </div>
+      </div>
+    </div>
+    <div class="about-right">
+      <h2 class="about-heading">Building the <em>Future,</em><br>One Line at a Time</h2>
+      <p>I'm a JavaScript developer with a passion for AI-driven systems, beautiful frontends, and solving real-world problems through technology. Currently pursuing my BCA at Amity University Lucknow with a 8.9 CGPA.</p>
+      <p>From founding the XBzin Ecosystem to filing three tech patents, I operate at the intersection of engineering precision and creative vision.</p>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <div class="projects-header" id="projects">
+    <div>
+      <p class="section-label">Selected Work</p>
+      <h2 class="projects-heading">Projects</h2>
+    </div>
+    <span class="projects-count">03 / Featured</span>
+  </div>
+
+  <!-- PIN CARDS -->
+  <section class="pin-card" id="pc1">
+    <div class="overlay"></div>
+    <span class="pin-card-num">(01)</span>
+    <div class="pin-card-content">
+      <span class="pin-card-tag">AI · Agriculture · Patent Filed</span>
+      <h2>CropGuard</h2>
+      <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&auto=format&fit=crop" alt="CropGuard" loading="lazy">
+      <p>Advanced crop analysis system with AI-powered yield prediction, disease detection, and profit estimation. Features a voice assistant, interactive dashboard, and what-if simulation engine trained on soil, weather, and nutrient data.</p>
+      <div class="pin-card-tech">
+        <span class="tech-tag">HTML</span>
+        <span class="tech-tag">Tailwind CSS</span>
+        <span class="tech-tag">JavaScript</span>
+        <span class="tech-tag">Chart.js</span>
+        <span class="tech-tag">External APIs</span>
+      </div>
+      <a href="#" class="pin-card-cta">
+        View Project
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M9 3l5 5-5 5"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <section class="pin-card" id="pc2">
+    <div class="overlay"></div>
+    <span class="pin-card-num">(02)</span>
+    <div class="pin-card-content">
+      <span class="pin-card-tag">Productivity · File Processing</span>
+      <h2>XBZIN Tools</h2>
+      <img src="https://images.unsplash.com/photo-1607798748738-b15c40d33d57?w=1200&auto=format&fit=crop" alt="XBZIN Tools" loading="lazy">
+      <p>All-in-one client-side file converter. Converts images between formats, extracts PDF pages as images, merges images into PDFs, and handles batch ZIP downloads — 100% in-browser, zero server uploads.</p>
+      <div class="pin-card-tech">
+        <span class="tech-tag">JavaScript</span>
+        <span class="tech-tag">PDF.js</span>
+        <span class="tech-tag">JSZip</span>
+        <span class="tech-tag">jsPDF</span>
+        <span class="tech-tag">FileSaver.js</span>
+      </div>
+      <a href="#" class="pin-card-cta">
+        View Project
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M9 3l5 5-5 5"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <section class="pin-card" id="pc3">
+    <div class="overlay"></div>
+    <span class="pin-card-num">(03)</span>
+    <div class="pin-card-content">
+      <span class="pin-card-tag">Ecosystem · Founder</span>
+      <h2>XBzin Ecosystem</h2>
+      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&auto=format&fit=crop" alt="XBzin Ecosystem" loading="lazy">
+      <p>Founded and built the XBzin Ecosystem — a suite of developer tools, AI-powered apps, and web products. The platform serves as an incubator for experimental technology and client solutions.</p>
+      <div class="pin-card-tech">
+        <span class="tech-tag">Full-Stack</span>
+        <span class="tech-tag">AI Integration</span>
+        <span class="tech-tag">Node.js</span>
+      </div>
+      <a href="#" class="pin-card-cta">
+        Explore
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M9 3l5 5-5 5"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section class="experience" id="experience">
+    <div class="experience-left">
+      <p class="section-label">Career</p>
+      <h2 class="exp-heading">Work &<br><em>Education</em></h2>
+    </div>
+    <div class="exp-list">
+      <div class="exp-item">
+        <div>
+          <span class="exp-role">Founder & Developer</span>
+          <span class="exp-company">XBzin Ecosystem</span>
+        </div>
+        <span class="exp-year">2024 – Present</span>
+        <p class="exp-desc">Building and maintaining a suite of AI-powered tools and web applications. Responsible for product strategy, development, and deployment across multiple platforms.</p>
+      </div>
+      <div class="exp-item">
+        <div>
+          <span class="exp-role">Freelance Web Developer</span>
+          <span class="exp-company">Independent</span>
+        </div>
+        <span class="exp-year">2022 – Present</span>
+        <p class="exp-desc">Delivered 60+ client projects including custom websites, e-commerce platforms, and business landing pages. Clients across India spanning retail, healthcare, and tech sectors.</p>
+      </div>
+      <div class="exp-item">
+        <div>
+          <span class="exp-role">Bachelor of Computer Application</span>
+          <span class="exp-company">Amity University Lucknow</span>
+        </div>
+        <span class="exp-year">2023 – 2026</span>
+        <p class="exp-desc">CGPA 8.9. Specialising in full-stack development, AI systems, and data structures with a focus on practical, production-grade applications.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PATENTS -->
+  <section class="patents">
+    <p class="section-label">Intellectual Property</p>
+    <h2 class="patents-heading">Patents Filed — 2025</h2>
+    <div class="patent-list">
+      <div class="patent-item">
+        <span class="patent-title">CropGuard – AI-based Crop Yield Prediction Tool</span>
+        <span class="patent-num">No. 202511052680</span>
+      </div>
+      <div class="patent-item">
+        <span class="patent-title">Mental Health Monitoring System with Emotional Parameters</span>
+        <span class="patent-num">No. 202511046941</span>
+      </div>
+      <div class="patent-item">
+        <span class="patent-title">AI-Powered Ayurvedic Medicine Recommender System</span>
+        <span class="patent-num">No. 20251104366</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <p class="contact-label">Get in Touch</p>
+    <h2 class="contact-heading">Let's Build<br><em>Something</em><br>Remarkable</h2>
+    <a class="contact-email" href="mailto:itsmebhsh@gmail.com">itsmebhsh@gmail.com</a>
+    <div class="contact-links">
+      <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2025 Bharat Shukla</span>
+    <span>JavaScript Developer · Lucknow, India</span>
+    <span>Designed with intent</span>
+  </footer>
+
+  <script>
+    (function() {
+      "use strict";
+      
+      gsap.registerPlugin(ScrollTrigger);
+
+      // ============================================
+      // LOADER
+      // ============================================
+      window.addEventListener('load', function() {
+        const loader = document.getElementById('loader');
+        gsap.to(loader, {
+          opacity: 0,
+          duration: 0.8,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            loader.style.display = 'none';
+          }
+        });
+      });
+
+      // ============================================
+      // LENIS SMOOTH SCROLL
+      // ============================================
+      const lenis = new Lenis({
+        duration: 1.4,
+        easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+        smoothTouch: false,
+      });
+      
+      gsap.ticker.add(time => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+      lenis.on('scroll', ScrollTrigger.update);
+
+      // ============================================
+      // MOBILE MENU
+      // ============================================
+      const menuBtn = document.getElementById('mobileMenuBtn');
+      const mobileMenu = document.getElementById('mobileMenu');
+      const mobileLinks = document.querySelectorAll('.mobile-link');
+      let isMenuOpen = false;
+
+      function toggleMenu() {
+        isMenuOpen = !isMenuOpen;
+        menuBtn.classList.toggle('active', isMenuOpen);
+        mobileMenu.classList.toggle('active', isMenuOpen);
+        document.body.classList.toggle('menu-open', isMenuOpen);
+        
+        if (isMenuOpen) {
+          lenis.stop();
+        } else {
+          lenis.start();
+        }
+      }
+
+      menuBtn.addEventListener('click', toggleMenu);
+      
+      mobileLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href');
+          const targetElement = document.querySelector(targetId);
+          
+          toggleMenu();
+          
+          if (targetElement) {
+            setTimeout(() => {
+              lenis.scrollTo(targetElement, {
+                offset: -50,
+                duration: 1.2,
+                easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+              });
+            }, 300);
+          }
+        });
+      });
+
+      // Close menu on escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isMenuOpen) {
+          toggleMenu();
+        }
+      });
+
+      // Nav links smooth scroll
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href');
+          const targetElement = document.querySelector(targetId);
+          
+          if (targetElement) {
+            lenis.scrollTo(targetElement, {
+              offset: -50,
+              duration: 1.2,
+              easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+            });
+          }
+        });
+      });
+
+      // Logo click - scroll to top
+      document.querySelector('.nav-logo').addEventListener('click', (e) => {
+        e.preventDefault();
+        lenis.scrollTo(0, { duration: 1.2 });
+      });
+
+      // ============================================
+      // HERO ANIMATIONS
+      // ============================================
+      const heroTl = gsap.timeline({ delay: 0.5 });
+      heroTl
+        .to('.hero-label', { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
+        .to('.hero-name', { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' }, '-=0.6')
+        .to('.hero-desc', { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, '-=0.7')
+        .to('.hero-meta', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.7')
+        .to('.scroll-hint', { opacity: 1, duration: 0.8 }, '-=0.4');
+
+      // Nav parallax
+      gsap.to('nav', {
+        yPercent: -30, opacity: 0.4,
+        ease: 'none',
+        scrollTrigger: { trigger: '.hero', start: '60% top', end: 'bottom top', scrub: true }
+      });
+
+      // Hero name parallax
+      gsap.to('.hero-name', {
+        yPercent: -20, ease: 'none',
+        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
+      });
+
+      // Scroll hint fade
+      gsap.to('.scroll-hint', {
+        opacity: 0, ease: 'none',
+        scrollTrigger: { trigger: '.hero', start: '20% top', end: '40% top', scrub: true }
+      });
+
+      // ============================================
+      // ABOUT REVEAL
+      // ============================================
+      gsap.from('.about-left', {
+        opacity: 0, x: -50, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: '.about', start: 'top 75%', toggleActions: 'play none none none' }
+      });
+      
+      gsap.from('.about-right', {
+        opacity: 0, x: 50, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: '.about', start: 'top 75%', toggleActions: 'play none none none' }
+      });
+      
+      gsap.from('.stat-item', {
+        opacity: 0, y: 30, stagger: 0.15, duration: 0.8, ease: 'power3.out',
+        scrollTrigger: { trigger: '.stat-grid', start: 'top 80%', toggleActions: 'play none none none' }
+      });
+
+      // ============================================
+      // PIN CARDS - ZiiUi STYLE
+      // ============================================
+      const pinCards = gsap.utils.toArray('.pin-card');
+      
+      pinCards.forEach((card, i) => {
+        if (i < pinCards.length - 1) {
+          ScrollTrigger.create({
+            trigger: card,
+            start: 'top top',
+            endTrigger: pinCards[pinCards.length - 1],
+            end: 'top top',
+            pin: true,
+            pinSpacing: false,
+          });
+
+          ScrollTrigger.create({
+            trigger: pinCards[i + 1],
+            start: 'top bottom',
+            end: 'top top',
+            onUpdate(self) {
+              const p = self.progress;
+              gsap.set(card, {
+                scale: 1 - p * 0.22,
+                rotation: i % 2 === 0 ? p * 4 : -p * 4,
+                rotationX: i % 2 === 0 ? p * 35 : -p * 35,
+              });
+              gsap.set(card.querySelector('.overlay'), { opacity: p * 0.45 });
+            }
+          });
+        }
+      });
+
+      // Projects header animation
+      gsap.from('.projects-heading', {
+        opacity: 0, y: 40, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: '.projects-header', start: 'top 82%', toggleActions: 'play none none none' }
+      });
+
+      // ============================================
+      // EXPERIENCE STAGGER
+      // ============================================
+      gsap.from('.exp-item', {
+        opacity: 0, y: 40, stagger: 0.2, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: '.exp-list', start: 'top 78%', toggleActions: 'play none none none' }
+      });
+
+      // ============================================
+      // PATENTS STAGGER
+      // ============================================
+      gsap.from('.patent-item', {
+        opacity: 0, x: -30, stagger: 0.15, duration: 0.8, ease: 'power3.out',
+        scrollTrigger: { trigger: '.patent-list', start: 'top 80%', toggleActions: 'play none none none' }
+      });
+
+      // ============================================
+      // CONTACT ANIMATION
+      // ============================================
+      gsap.from('.contact-heading', {
+        opacity: 0, y: 60, duration: 1.1, ease: 'power3.out',
+        scrollTrigger: { trigger: '.contact', start: 'top 75%', toggleActions: 'play none none none' }
+      });
+
+      gsap.from('.contact-email', {
+        opacity: 0, y: 30, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: '.contact', start: 'top 70%', toggleActions: 'play none none none' }
+      });
+
+      gsap.from('.contact-links a', {
+        opacity: 0, y: 20, stagger: 0.1, duration: 0.7, ease: 'power3.out',
+        scrollTrigger: { trigger: '.contact-links', start: 'top 85%', toggleActions: 'play none none none' }
+      });
+
+      // ============================================
+      // RESIZE HANDLER
+      // ============================================
+      window.addEventListener('resize', () => {
+        ScrollTrigger.refresh();
+      });
+
+      // Refresh ScrollTrigger after images load
+      window.addEventListener('load', () => {
+        ScrollTrigger.refresh();
+      });
+
+    })();
+  </script>
+</body>
+</html>
