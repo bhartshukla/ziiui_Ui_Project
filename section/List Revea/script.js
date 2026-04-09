@@ -1,4 +1,4 @@
-<script>
+
         window.addEventListener("load", () => {
 
             const lenis = new Lenis();
@@ -51,4 +51,3 @@
 
         });
 
-    </script>
