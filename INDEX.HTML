@@ -672,7 +672,6 @@ section{position:relative;}
   text-decoration:none;
   color:#fff;
   transition:color 0.3s;
-  group: true;
 }
 .contact-link:first-child{border-top:1px solid rgba(255,255,255,0.08);}
 .contact-link:hover{color:var(--accent);}
@@ -786,7 +785,7 @@ footer p{
 
 <!-- ─── WEBGL REVEAL ─── -->
 <div class="webgl-stage" id="webglStage">
-  <img id="sourceImg"
+  <img id="sourceImg" loading="lazy"
     src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=2000&q=85&auto=format&fit=crop"
     crossorigin="anonymous" alt=""/>
   <div class="progress-overlay" id="progressDisplay">0%</div>
@@ -815,7 +814,7 @@ footer p{
     <div class="scroll-container" id="projectsContainer">
 
       <div class="card">
-        <img src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&q=80" alt="CropGuard"/>
+        <img loading="lazy" src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&q=80" alt="CropGuard"/>
         <div class="card-overlay">
           <h3>CropGuard — AI Yield Prediction</h3>
           <div class="card-tags">
@@ -831,7 +830,7 @@ footer p{
       </div>
 
       <div class="card">
-        <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80" alt="XBZIN Tools"/>
+        <img loading="lazy" src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80" alt="XBZIN Tools"/>
         <div class="card-overlay">
           <h3>XBZIN Tools — File Converter</h3>
           <div class="card-tags">
@@ -847,7 +846,7 @@ footer p{
       </div>
 
       <div class="card">
-        <img src="https://images.unsplash.com/photo-1559028012-481c04fa702d?w=800&q=80" alt="Mental Health Monitor"/>
+        <img loading="lazy" src="https://images.unsplash.com/photo-1559028012-481c04fa702d?w=800&q=80" alt="Mental Health Monitor"/>
         <div class="card-overlay">
           <h3>Mental Health Monitoring System</h3>
           <div class="card-tags">
@@ -863,7 +862,7 @@ footer p{
       </div>
 
       <div class="card">
-        <img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800&q=80" alt="Ayurvedic AI"/>
+        <img loading="lazy" src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800&q=80" alt="Ayurvedic AI"/>
         <div class="card-overlay">
           <h3>AI Ayurvedic Recommender</h3>
           <div class="card-tags">
@@ -879,7 +878,7 @@ footer p{
       </div>
 
       <div class="card">
-        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80" alt="E-commerce"/>
+        <img loading="lazy" src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80" alt="E-commerce"/>
         <div class="card-overlay">
           <h3>Custom E-Commerce Platforms</h3>
           <div class="card-tags">
@@ -895,7 +894,7 @@ footer p{
       </div>
 
       <div class="card">
-        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80" alt="Dashboard"/>
+        <img loading="lazy" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80" alt="Dashboard"/>
         <div class="card-overlay">
           <h3>Business Analytics Dashboard</h3>
           <div class="card-tags">
@@ -926,7 +925,7 @@ footer p{
     <p>Full-spectrum developer — from beautiful UIs to intelligent backends. Here's what I bring to the table.</p>
   </div>
 
-  <img class="preview-image" id="skillPreview"
+  <img class="preview-image" id="skillPreview" loading="lazy"
     src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80" alt=""/>
 
   <div class="skills-list-section" id="skillsSection">
@@ -1070,14 +1069,14 @@ footer p{
         </div>
         <span class="contact-link-arrow">↗</span>
       </a>
-      <a class="contact-link" href="https://github.com" target="_blank">
+      <a class="contact-link" href="https://github.com" target="_blank" rel="noopener noreferrer">
         <div>
           <span class="contact-link-label">GitHub</span>
           <span class="contact-link-val">github.com/bharat</span>
         </div>
         <span class="contact-link-arrow">↗</span>
       </a>
-      <a class="contact-link" href="https://linkedin.com" target="_blank">
+      <a class="contact-link" href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
         <div>
           <span class="contact-link-label">LinkedIn</span>
           <span class="contact-link-val">linkedin.com/in/bharat</span>
@@ -1097,7 +1096,7 @@ footer p{
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
 
 <script>
 /* ── SMOOTH SCROLL ── */
@@ -1107,7 +1106,47 @@ gsap.ticker.add((time)=>{ lenis.raf(time*1000); });
 gsap.ticker.lagSmoothing(0);
 gsap.registerPlugin(ScrollTrigger);
 
-/* ── ABOUT END REVEAL ── */
+/* ── HAMBURGER MENU TOGGLE (mobile) ── */
+const hamburger = document.querySelector('.hamburger');
+const navLinks = document.querySelector('.nav-links');
+if (hamburger && navLinks) {
+  hamburger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (navLinks.style.display === 'flex') {
+      navLinks.style.display = 'none';
+    } else {
+      navLinks.style.display = 'flex';
+      navLinks.style.flexDirection = 'column';
+      navLinks.style.position = 'absolute';
+      navLinks.style.top = '70px';
+      navLinks.style.right = '5%';
+      navLinks.style.backgroundColor = 'var(--cream)';
+      navLinks.style.padding = '1.5rem';
+      navLinks.style.gap = '1rem';
+      navLinks.style.borderRadius = '8px';
+      navLinks.style.boxShadow = '0 10px 25px rgba(0,0,0,0.1)';
+      navLinks.style.zIndex = '1000';
+    }
+  });
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+      navLinks.style.display = '';
+      navLinks.style.flexDirection = '';
+      navLinks.style.position = '';
+      navLinks.style.top = '';
+      navLinks.style.right = '';
+      navLinks.style.backgroundColor = '';
+      navLinks.style.padding = '';
+      navLinks.style.gap = '';
+      navLinks.style.boxShadow = '';
+      navLinks.style.zIndex = '';
+    } else if (navLinks.style.display === 'flex' && window.innerWidth <= 768) {
+      navLinks.style.display = 'flex';
+    }
+  });
+}
+
+/* ── ABOUT END REVEAL (single ScrollTrigger) ── */
 ScrollTrigger.create({
   trigger:'#about-end',
   start:'top 70%',
@@ -1139,8 +1178,20 @@ ScrollTrigger.create({
   });
 })();
 
-/* ── WEBGL PIXEL REVEAL ── */
+/* ── WEBGL PIXEL REVEAL (with fallback for small screens) ── */
 (function(){
+  const isSmallScreen = window.innerWidth < 768 || window.innerHeight < 600;
+  if (isSmallScreen) {
+    const stage = document.getElementById('webglStage');
+    if (stage) {
+      stage.style.background = '#000';
+      stage.style.display = 'block';
+      const canvasEl = stage.querySelector('canvas');
+      if (canvasEl) canvasEl.style.display = 'none';
+    }
+    return;
+  }
+
   const lerp=(a,b,t)=>a+(b-a)*t;
   const damp=(a,b,lambda,dt)=>lerp(a,b,1-Math.exp(-lambda*dt));
 
@@ -1193,7 +1244,6 @@ ScrollTrigger.create({
     });
     let rawProgress=0,smoothProgress=0;
     ScrollTrigger.create({trigger:stage,start:'top bottom',end:'bottom top',onUpdate(self){rawProgress=gsap.utils.clamp(0,1,(self.progress-0.05)/0.85);}});
-    ScrollTrigger.create({trigger:'#about-end',start:'top 80%',onEnter:()=>document.getElementById('about-end').classList.add('visible'),onLeaveBack:()=>document.getElementById('about-end').classList.remove('visible')});
     let prevTime=0;
     function loop(time){
       requestAnimationFrame(loop);
@@ -1204,8 +1254,8 @@ ScrollTrigger.create({
       coverMat.uniforms.uRawProgress.value=rawProgress;
       coverMat.uniforms.uTime.value=time*0.001;
       const pct=Math.round(smoothProgress*100);
-      display.textContent=pct+'%';
-      display.style.color=smoothProgress>0.5?'rgba(255,255,255,0.12)':'rgba(255,255,255,0.25)';
+      if(display) display.textContent=pct+'%';
+      if(display) display.style.color=smoothProgress>0.5?'rgba(255,255,255,0.12)':'rgba(255,255,255,0.25)';
       renderer.clear();renderer.render(scene,camera);
     }
     requestAnimationFrame(loop);
@@ -1218,6 +1268,7 @@ ScrollTrigger.create({
   const listWrapper=document.getElementById('skillsListWrapper');
   const section=document.getElementById('skillsSection');
   const items=document.querySelectorAll('.skill-item');
+  if(!items.length) return;
   const preview=document.getElementById('skillPreview');
   const itemH=items[0].offsetHeight+6;
   const total=itemH*(items.length-1);
@@ -1229,10 +1280,10 @@ ScrollTrigger.create({
       onUpdate:(self)=>{
         const idx=Math.round(self.progress*(items.length-1));
         items.forEach((it,i)=>it.classList.toggle('active',i===idx));
-        preview.src=items[idx].dataset.img;
+        if(preview && items[idx] && items[idx].dataset.img) preview.src=items[idx].dataset.img;
       },
-      onLeave:()=>{gsap.to(preview,{opacity:0,duration:0.3});items.forEach(it=>it.classList.remove('active'));},
-      onEnterBack:()=>gsap.to(preview,{opacity:1,duration:0.3}),
+      onLeave:()=>{if(preview) gsap.to(preview,{opacity:0,duration:0.3});items.forEach(it=>it.classList.remove('active'));},
+      onEnterBack:()=>{if(preview) gsap.to(preview,{opacity:1,duration:0.3});},
     }
   });
 })();
