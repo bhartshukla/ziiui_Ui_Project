@@ -1110,12 +1110,29 @@ footer p{
 <script src="https://unpkg.com/lenis@1.0.42/dist/lenis.min.js"></script>
 
 <script>
-/* ── SMOOTH SCROLL (LENIS stable + GSAP integration) ── */
-const lenis = new Lenis({ lerp: 0.085, smoothWheel: true });
-lenis.on('scroll', ScrollTrigger.update);
-gsap.ticker.add((time) => { lenis.raf(time * 1000); });
-gsap.ticker.lagSmoothing(0);
-gsap.registerPlugin(ScrollTrigger);
+(function() {
+  // Wait for Lenis to be available with fallback smooth scroll
+  let lenis;
+  const initLenis = () => {
+    if (typeof Lenis !== 'undefined') {
+      lenis = new Lenis({ lerp: 0.085, smoothWheel: true });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((time) => { if (lenis) lenis.raf(time * 1000); });
+    } else {
+      // Fallback: use default scroll, but still update ScrollTrigger
+      window.addEventListener('scroll', () => ScrollTrigger.update());
+    }
+  };
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLenis);
+  } else {
+    initLenis();
+  }
+  
+  gsap.ticker.lagSmoothing(0);
+  gsap.registerPlugin(ScrollTrigger);
+})();
 
 /* ── HAMBURGER MENU TOGGLE (CSS class toggle, no inline JS style abuse) ── */
 const hamburger = document.querySelector('.hamburger');
@@ -1235,13 +1252,6 @@ ScrollTrigger.create({
   function waitImg(el){return new Promise(res=>{if(el.complete&&el.naturalWidth)return res(el);el.onload=el.onerror=()=>res(el);});}
 
   let isWebGLActive = false;
-  let webGLTrigger = null;
-  
-  function initWebGL() {
-    if (isWebGLActive) return;
-    isWebGLActive = true;
-    boot();
-  }
   
   async function boot(){
     await waitImg(img);
@@ -1269,7 +1279,7 @@ ScrollTrigger.create({
       coverMat.uniforms.uPlaneSize.value.set(w,h);
     });
     let rawProgress=0,smoothProgress=0;
-    webGLTrigger = ScrollTrigger.create({
+    ScrollTrigger.create({
       trigger: stage,
       start: 'top bottom',
       end: 'bottom top',
@@ -1295,7 +1305,8 @@ ScrollTrigger.create({
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting && !isWebGLActive) {
-        initWebGL();
+        isWebGLActive = true;
+        boot();
         observer.disconnect();
       }
     });
@@ -1357,7 +1368,7 @@ ScrollTrigger.create({
   }
 })();
 
-/* ── FINAL REFRESH to avoid duplicate triggers ── */
+/* ── FINAL REFRESH to avoid duplicate triggers and ensure proper layering ── */
 ScrollTrigger.refresh();
 </script>
 </body>
