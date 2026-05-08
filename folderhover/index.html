@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Folder Hover</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100dvh;
+      overflow-x: hidden;
+      font-family: system-ui, sans-serif;
+      color: #1a1a1a;
+      background: #ece8e1;
+    }
+
+    .layout {
+      width: 100%;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+
+    .layer {
+      width: 100%;
+      display: flex;
+    }
+
+    .folder {
+      position: relative;
+      flex: 1;
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .photos {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: min(22rem, 100%);
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .folder:hover .photos {
+      overflow: visible;
+    }
+
+    .photo {
+      position: absolute;
+      top: 50%;
+      width: 7.5rem;
+      height: 11rem;
+    }
+
+    .photo:nth-child(1) {
+      left: 18%;
+      transform-origin: top left;
+    }
+
+    .photo:nth-child(2) {
+      left: 50%;
+      transform-origin: center center;
+    }
+
+    .photo:nth-child(3) {
+      left: 82%;
+      transform-origin: top right;
+    }
+
+    .photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .panel {
+      position: relative;
+      height: 100%;
+      padding: 12px 18px;
+      pointer-events: none;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      top: -48px;
+      left: 0;
+      width: min(360px, 100%);
+      height: 48px;
+      clip-path: polygon(0 0, 78% 0, 100% 100%, 0 100%);
+    }
+
+    .panel--1,
+    .panel--1::before {
+      background: #f5e04a;
+    }
+
+    .panel--2,
+    .panel--2::before {
+      background: #d4d4d4;
+    }
+
+    .panel--3,
+    .panel--3::before {
+      background: #e8e4dc;
+    }
+
+    .panel--4,
+    .panel--4::before {
+      background: #9c9c9c;
+    }
+
+    .panel--5,
+    .panel--5::before {
+      background: #ffcc4d;
+    }
+
+    .folder.muted .panel,
+    .folder.muted .panel::before {
+      background: #dad6cf;
+    }
+
+    .folder.muted .panel p,
+    .folder.muted .panel h1 {
+      color: #8a8680;
+    }
+
+    .panel p {
+      position: absolute;
+      top: -28px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+
+    .panel h1 {
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 600;
+      line-height: 1.1;
+    }
+
+    .target {
+      position: absolute;
+      top: -52px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="layer">
+      <div class="folder">
+        <div class="photos">
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/cb/f4/ef/cbf4ef0768d8bc797282763a41890a8e.jpg" alt="" />
+          </div>
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/99/84/aa/9984aabe9162b543020731a0749d251f.jpg" alt="" />
+          </div>
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/d7/ef/75/d7ef75036f89dbdb9e66547399743650.jpg" alt="" />
+          </div>
+        </div>
+        <div class="panel panel--1">
+          <p>01</p>
+          <h1>Branding</h1>
+        </div>
+        <div class="target" aria-hidden="true"></div>
+      </div>
+
+      <div class="folder">
+        <div class="photos">
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/cb/f4/ef/cbf4ef0768d8bc797282763a41890a8e.jpg" alt="" />
+          </div>
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/99/84/aa/9984aabe9162b543020731a0749d251f.jpg" alt="" />
+          </div>
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/d7/ef/75/d7ef75036f89dbdb9e66547399743650.jpg" alt="" />
+          </div>
+        </div>
+        <div class="panel panel--2">
+          <p>02</p>
+          <h1>Motion design</h1>
+        </div>
+        <div class="target" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="folder">
+        <div class="photos">
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/cb/f4/ef/cbf4ef0768d8bc797282763a41890a8e.jpg" alt="" />
+          </div>
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/99/84/aa/9984aabe9162b543020731a0749d251f.jpg" alt="" />
+          </div>
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/d7/ef/75/d7ef75036f89dbdb9e66547399743650.jpg" alt="" />
+          </div>
+        </div>
+        <div class="panel panel--3">
+          <p>03</p>
+          <h1>UI &amp; UX</h1>
+        </div>
+        <div class="target" aria-hidden="true"></div>
+      </div>
+
+      <div class="folder">
+        <div class="photos">
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/cb/f4/ef/cbf4ef0768d8bc797282763a41890a8e.jpg" alt="" />
+          </div>
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/99/84/aa/9984aabe9162b543020731a0749d251f.jpg" alt="" />
+          </div>
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/d7/ef/75/d7ef75036f89dbdb9e66547399743650.jpg" alt="" />
+          </div>
+        </div>
+        <div class="panel panel--4">
+          <p>04</p>
+          <h1>Graphisme</h1>
+        </div>
+        <div class="target" aria-hidden="true"></div>
+      </div>
+
+      <div class="folder">
+        <div class="photos">
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/cb/f4/ef/cbf4ef0768d8bc797282763a41890a8e.jpg" alt="" />
+          </div>
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/99/84/aa/9984aabe9162b543020731a0749d251f.jpg" alt="" />
+          </div>
+          <div class="photo">
+            <img src="https://i.pinimg.com/736x/d7/ef/75/d7ef75036f89dbdb9e66547399743650.jpg" alt="" />
+          </div>
+        </div>
+        <div class="panel panel--5">
+          <p>05</p>
+          <h1>3D Animation</h1>
+        </div>
+        <div class="target" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script>
+    gsap.defaults({ overwrite: "auto" });
+
+
+    const tiltRange = [
+      [-20, -10],
+      [-10, 10],
+      [10, 20],
+    ];
+
+    function muteOthers(allFolders, active, on) {
+      for (const f of allFolders) {
+        f.classList.toggle("muted", on && f !== active);
+      }
+    }
+
+    function animatePhotos(photoEls, opening) {
+      photoEls.forEach((el, i) => {
+        const [lo, hi] = tiltRange[i];
+        gsap.to(el, {
+          y: opening ? "-120%" : "0%",
+          rotation: opening ? gsap.utils.random(lo, hi) : 0,
+          duration: 0.25,
+          ease: "back.out(1.7)",
+          delay: opening ? i * 0.03 : i * 0.05,
+        });
+      });
+    }
+
+    const allFolders = document.querySelectorAll(".folder");
+    for (const folder of allFolders) {
+      const target = folder.querySelector(".target");
+      const photos = folder.querySelectorAll(".photo");
+
+      target.addEventListener("pointerenter", () => {
+        muteOthers(allFolders, folder, true);
+        animatePhotos(photos, true);
+      });
+      target.addEventListener("pointerleave", () => {
+        muteOthers(allFolders, folder, false);
+        animatePhotos(photos, false);
+      });
+    }
+  </script>
+</body>
+</html>
