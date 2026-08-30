@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agency — Hero</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<style>
+  :root {
+    --background: #0a0a0a;
+    --foreground: #f4f4f2;
+    --accent: #d7ff3f; /* agency accent — swap to your brand color */
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    cursor: none;
+  }
+
+  a, button { cursor: none; }
+
+  .hero {
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    background: var(--background);
+  }
+
+  /* ---------- ambient glow that follows cursor ---------- */
+  .cursor-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 480px;
+    height: 480px;
+    margin-left: -240px;
+    margin-top: -240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(215,255,63,0.10) 0%, rgba(215,255,63,0) 70%);
+    pointer-events: none;
+    z-index: 5;
+    will-change: transform;
+  }
+
+  /* ---------- custom cursor dot + ring ---------- */
+  .cursor-dot, .cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 100;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+  }
+  .cursor-ring {
+    width: 34px;
+    height: 34px;
+    border: 1px solid rgba(244,244,242,0.55);
+    transition: width 0.25s ease, height 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  }
+  .cursor-ring.is-active {
+    width: 64px;
+    height: 64px;
+    background: rgba(215,255,63,0.08);
+    border-color: var(--accent);
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .cursor-dot, .cursor-ring, .cursor-glow { display: none; }
+    body, a, button { cursor: auto; }
+  }
+
+  /* ---------- top nav row ---------- */
+  .hero-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 1.5rem 0;
+  }
+
+  @media (min-width: 768px) {
+    .hero-nav { padding: 2rem 3rem 0; }
+  }
+
+  .hero-mark {
+    font-family: 'Anton', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.02em;
+    color: #fff;
+    opacity: 0;
+    text-shadow: 0 2px 24px rgba(0,0,0,0.45);
+  }
+
+  .hero-menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: #fff;
+    opacity: 0;
+    text-shadow: 0 2px 24px rgba(0,0,0,0.45);
+  }
+
+  .hero-menu .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  .nav-link {
+    position: relative;
+    color: #fff;
+    text-decoration: none;
+    padding-bottom: 3px;
+  }
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.35s ease;
+  }
+  .nav-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* ---------- image stack ---------- */
+  .hero-imgwrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1200px;
+  }
+
+  .hero-imgstack {
+    position: relative;
+    width: min(88vw, 28rem);
+    aspect-ratio: 16 / 9;
+    max-width: 28rem;
+    overflow: hidden;
+    margin: 0 auto;
+    will-change: transform;
+    transform-style: preserve-3d;
+  }
+
+  @media (min-width: 768px) {
+    .hero-imgstack { width: 42vw; }
+  }
+
+  .hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    clip-path: inset(0% 0% 100% 0%);
+  }
+
+  .hero-radial {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    opacity: 0;
+    background: radial-gradient(
+      ellipse 100% 88% at 50% 42%,
+      transparent 18%,
+      rgba(0,0,0,0.55) 55%,
+      rgba(10,10,10,0.92) 100%
+    );
+  }
+
+  /* ---------- copy ---------- */
+  .hero-copy {
+    pointer-events: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 3rem;
+    z-index: 20;
+    padding: 0 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .hero-copy {
+      bottom: 3.5rem;
+      left: 3rem;
+      right: 3rem;
+      padding: 0;
+    }
+  }
+
+  .hero-eyebrow {
+    margin: 0 0 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0;
+    text-align: center;
+  }
+
+  @media (min-width: 768px) { .hero-eyebrow { text-align: left; } }
+
+  .hero-title {
+    margin: 0;
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    font-weight: 400;
+    line-height: 0.98;
+    letter-spacing: -0.01em;
+    color: #fff;
+    text-align: center;
+    text-shadow: 0 2px 24px rgba(0,0,0,0.5);
+  }
+
+  @media (min-width: 768px) { .hero-title { text-align: left; } }
+
+  .hero-sub {
+    margin: 1.1rem 0 0;
+    max-width: 34rem;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: rgba(244,244,242,0.75);
+    text-align: center;
+    opacity: 0;
+  }
+
+  @media (min-width: 768px) {
+    .hero-sub { text-align: left; margin-left: 0; }
+  }
+
+  .hero-actions {
+    pointer-events: auto;
+    margin-top: 1.75rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    opacity: 0;
+  }
+
+  @media (min-width: 768px) { .hero-actions { justify-content: flex-start; } }
+
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    background: transparent;
+    will-change: transform;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0a0a;
+  }
+
+  .btn-ghost {
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.35);
+  }
+  .btn-ghost:hover {
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* ---------- scroll cue ---------- */
+  .scroll-cue {
+    position: absolute;
+    left: 50%;
+    bottom: 1.5rem;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    transform: translateX(-50%);
+    color: rgba(244,244,242,0.7);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 768px) { .scroll-cue { display: none; } }
+
+  .scroll-cue .wheel {
+    width: 22px;
+    height: 34px;
+    border: 1px solid rgba(244,244,242,0.5);
+    border-radius: 999px;
+    position: relative;
+  }
+  .scroll-cue .wheel::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    width: 3px;
+    height: 6px;
+    margin-left: -1.5px;
+    border-radius: 999px;
+    background: var(--accent);
+    animation: wheel-bounce 1.6s ease-in-out infinite;
+  }
+
+  @keyframes wheel-bounce {
+    0%   { transform: translateY(0); opacity: 1; }
+    60%  { transform: translateY(10px); opacity: 0; }
+    61%  { transform: translateY(0); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  /* ---------- word mask/reveal spans ---------- */
+  .split-word {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+  }
+  .split-word > span {
+    display: inline-block;
+    will-change: transform, opacity;
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor-glow" id="cursorGlow"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<section class="hero" id="hero">
+
+  <nav class="hero-nav">
+    <p class="hero-mark" id="heroMark">STUDIO&nbsp;NINE</p>
+    <div class="hero-menu" id="heroMenu">
+      <span class="dot"></span>
+      <a href="#work" class="nav-link" data-hover>Work</a>
+      <a href="#studio" class="nav-link" data-hover>Studio</a>
+      <a href="#contact" class="nav-link" data-hover>Contact</a>
+    </div>
+  </nav>
+
+  <div class="hero-imgwrap">
+    <div class="hero-imgstack" id="introContainer" data-parallax>
+      <!-- images injected by JS -->
+      <div class="hero-radial" id="introRadial" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div class="hero-copy">
+    <p class="hero-eyebrow" id="heroEyebrow">Digital &amp; Brand Agency</p>
+    <h1 class="hero-title" id="heroTitle">We Build Brands That Move</h1>
+    <p class="hero-sub" id="heroSub">
+      A small studio crafting identity, motion and web experiences for
+      ambitious teams — from first sketch to shipped product.
+    </p>
+    <div class="hero-actions" id="heroActions">
+      <a href="#work" class="btn btn-primary" data-magnetic data-hover>See our work</a>
+      <a href="#contact" class="btn btn-ghost" data-magnetic data-hover>Start a project</a>
+    </div>
+  </div>
+
+  <div class="scroll-cue" id="scrollCue">
+    <span class="wheel"></span>
+    <span>Scroll</span>
+  </div>
+
+</section>
+
+<script>
+  // =====================================================
+  // Config
+  // =====================================================
+  const IMAGES = [
+    "https://picsum.photos/seed/agency-mono1/1200/800",
+    "https://picsum.photos/seed/agency-studio2/1200/800",
+    "https://picsum.photos/seed/agency-build3/1200/800",
+    "https://picsum.photos/seed/agency-frame4/1200/800",
+    "https://picsum.photos/seed/agency-craft5/1200/800",
+  ];
+  // Swap any of the above for your own hosted images / client photography.
+
+  const INTRO_END_DELAY_SEC = 0.35 + (IMAGES.length - 1) * 0.25 + 1 + 1;
+  const isTouch = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+
+  // =====================================================
+  // Build image stack
+  // =====================================================
+  const introContainer = document.getElementById("introContainer");
+  const introRadial = document.getElementById("introRadial");
+  const imgEls = [];
+
+  IMAGES.forEach((src, i) => {
+    const img = document.createElement("img");
+    img.src = src;
+    img.alt = "";
+    img.className = "hero-img";
+    img.style.zIndex = i;
+    introContainer.insertBefore(img, introRadial);
+    imgEls.push(img);
+  });
+
+  // =====================================================
+  // Word split + mask reveal (vanilla replacement for GSAP SplitText)
+  // =====================================================
+  function splitWords(el) {
+    const words = el.textContent.trim().split(/\s+/);
+    el.textContent = "";
+    const wordSpans = [];
+    words.forEach((word, i) => {
+      const mask = document.createElement("span");
+      mask.className = "split-word";
+      const inner = document.createElement("span");
+      inner.textContent = word;
+      mask.appendChild(inner);
+      el.appendChild(mask);
+      if (i < words.length - 1) el.appendChild(document.createTextNode(" "));
+      wordSpans.push(inner);
+    });
+    return wordSpans;
+  }
+
+  function revealText(el, { delay = 0, duration = 0.95, stagger = 0.075 } = {}) {
+    const words = splitWords(el);
+    gsap.set(el, { opacity: 1 });
+    gsap.set(words, { yPercent: 110, opacity: 0 });
+    gsap.to(words, {
+      yPercent: 0,
+      opacity: 1,
+      duration,
+      ease: "power3.out",
+      stagger,
+      delay,
+    });
+  }
+
+  // =====================================================
+  // Intro timeline: image reveal -> expand -> radial fade
+  // =====================================================
+  const tl = gsap.timeline();
+
+  tl.to(imgEls, {
+    clipPath: "inset(0% 0% 0% 0%)",
+    duration: 1,
+    delay: 0.35,
+    stagger: { each: 0.25, ease: "power1.out" },
+  });
+
+  tl.to(introContainer, {
+    width: "100%",
+    height: "100dvh",
+    maxWidth: "none",
+    aspectRatio: "unset",
+    margin: 0,
+    duration: 1,
+    ease: "power3.inOut",
+  });
+
+  tl.to(
+    introRadial,
+    { opacity: 1, duration: 0.85, ease: "power2.out" },
+    ">"
+  );
+
+  // =====================================================
+  // Text / UI reveals
+  // =====================================================
+  revealText(document.getElementById("heroMark"), { delay: 0.6, duration: 0.75, stagger: 0.05 });
+
+  gsap.to("#heroMenu", { opacity: 1, duration: 0.8, delay: 0.8, ease: "power2.out" });
+
+  gsap.to("#heroEyebrow", { opacity: 1, duration: 0.7, delay: INTRO_END_DELAY_SEC - 0.25, ease: "power2.out" });
+
+  revealText(document.getElementById("heroTitle"), {
+    delay: INTRO_END_DELAY_SEC,
+    duration: 0.95,
+    stagger: 0.06,
+  });
+
+  gsap.to("#heroSub", {
+    opacity: 1,
+    duration: 0.8,
+    delay: INTRO_END_DELAY_SEC + 0.5,
+    ease: "power2.out",
+  });
+
+  gsap.to("#heroActions", {
+    opacity: 1,
+    duration: 0.8,
+    delay: INTRO_END_DELAY_SEC + 0.7,
+    ease: "power2.out",
+  });
+
+  gsap.to("#scrollCue", {
+    opacity: 1,
+    duration: 0.8,
+    delay: INTRO_END_DELAY_SEC + 0.9,
+    ease: "power2.out",
+  });
+
+  // =====================================================
+  // Interaction: custom cursor (dot + ring + ambient glow)
+  // =====================================================
+  if (!isTouch) {
+    const dot = document.getElementById("cursorDot");
+    const ring = document.getElementById("cursorRing");
+    const glow = document.getElementById("cursorGlow");
+
+    const dotPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const ringPos = { x: dotPos.x, y: dotPos.y };
+    const glowPos = { x: dotPos.x, y: dotPos.y };
+
+    window.addEventListener("mousemove", (e) => {
+      dotPos.x = e.clientX;
+      dotPos.y = e.clientY;
+    });
+
+    gsap.ticker.add(() => {
+      gsap.set(dot, { x: dotPos.x, y: dotPos.y });
+
+      ringPos.x += (dotPos.x - ringPos.x) * 0.18;
+      ringPos.y += (dotPos.y - ringPos.y) * 0.18;
+      gsap.set(ring, { x: ringPos.x, y: ringPos.y });
+
+      glowPos.x += (dotPos.x - glowPos.x) * 0.08;
+      glowPos.y += (dotPos.y - glowPos.y) * 0.08;
+      gsap.set(glow, { x: glowPos.x, y: glowPos.y });
+    });
+
+    document.querySelectorAll("[data-hover]").forEach((el) => {
+      el.addEventListener("mouseenter", () => ring.classList.add("is-active"));
+      el.addEventListener("mouseleave", () => ring.classList.remove("is-active"));
+    });
+
+    // =====================================================
+    // Interaction: magnetic buttons
+    // =====================================================
+    document.querySelectorAll("[data-magnetic]").forEach((btn) => {
+      btn.addEventListener("mousemove", (e) => {
+        const rect = btn.getBoundingClientRect();
+        const relX = e.clientX - (rect.left + rect.width / 2);
+        const relY = e.clientY - (rect.top + rect.height / 2);
+        gsap.to(btn, {
+          x: relX * 0.35,
+          y: relY * 0.5,
+          duration: 0.4,
+          ease: "power2.out",
+        });
+      });
+      btn.addEventListener("mouseleave", () => {
+        gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.4)" });
+      });
+    });
+
+    // =====================================================
+    // Interaction: mouse-move parallax tilt on the image stack
+    // =====================================================
+    const hero = document.getElementById("hero");
+    hero.addEventListener("mousemove", (e) => {
+      const rect = hero.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width - 0.5;  // -0.5..0.5
+      const py = (e.clientY - rect.top) / rect.height - 0.5;
+
+      gsap.to(introContainer, {
+        rotateY: px * 8,
+        rotateX: -py * 8,
+        duration: 0.6,
+        ease: "power2.out",
+        overwrite: "auto",
+      });
+    });
+    hero.addEventListener("mouseleave", () => {
+      gsap.to(introContainer, { rotateY: 0, rotateX: 0, duration: 0.8, ease: "power3.out" });
+    });
+  }
+</script>
+
+</body>
+</html>
