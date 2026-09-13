@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Image Spiral</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Observer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+</head>
+
+<body>
+  <canvas id="spiral"></canvas>
+
+  <script>
+    gsap.registerPlugin(Observer);
+
+    const imageUrls = [
+      'https://i.pinimg.com/736x/ec/24/eb/ec24eb332cdbb522afcfaefc9bf83373.jpg',
+      'https://i.pinimg.com/1200x/99/ca/7c/99ca7cd6600088e37daadf26a5698835.jpg',
+      'https://i.pinimg.com/1200x/c7/f2/86/c7f2865a125f4c7dee813f08c7d3d40f.jpg',
+      'https://i.pinimg.com/736x/c4/dc/e0/c4dce03895313ea8d88fdf1e9ae5e02a.jpg',
+      'https://i.pinimg.com/1200x/9f/3f/2b/9f3f2b5b9cf7327757193409e89fe807.jpg',
+      'https://i.pinimg.com/736x/da/dc/bb/dadcbbc69a49acefdb7257f905e09238.jpg',
+      'https://i.pinimg.com/736x/25/46/c2/2546c2b05e3ee8413c07900235d3c12a.jpg',
+      'https://i.pinimg.com/736x/a0/4e/e6/a04ee69093592c52a659d0d4ad8719b3.jpg',
+      'https://i.pinimg.com/1200x/f3/81/21/f3812143cc160343cce3ad42863ea575.jpg',
+    ].map(url => `https://images.weserv.nl/?url=${url}&w=900&h=1200&fit=cover`);
+
+    const settings = {
+      radius: 1.8,
+      verticalGap: 0.9,
+      angleGap: 0.85,
+      cardWidth: 1.35,
+      cardHeight: 1.8,
+      idleSpin: 0.005,
+      scrollSensitivity: 0.004,
+      smoothing: 0.1,
+      wobbleStrength: 0.3,
+    };
+
+    const vertexShader = `
+  uniform float uWobble;
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+    viewPosition.x += sin(uv.y * 3.14159) * uWobble;
+    gl_Position = projectionMatrix * viewPosition;
+  }`;
+
+    const fragmentShader = `
+  uniform sampler2D uTexture;
+  varying vec2 vUv;
+  void main() {
+    vec4 color = texture2D(uTexture, vUv);
+    if (!gl_FrontFacing) color.rgb = mix(color.rgb, vec3(1.0), 0.75);
+    gl_FragColor = color;
+  }`;
+
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('spiral'), antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+    camera.position.z = 8;
+
+    const cardCount = imageUrls.length * 2;
+    const geometry = new THREE.PlaneGeometry(settings.cardWidth, settings.cardHeight, 1, 16);
+    const textureLoader = new THREE.TextureLoader().setCrossOrigin('anonymous');
+    const wobble = { value: 0 };
+
+    const cards = imageUrls.concat(imageUrls).map((url) => {
+      const card = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
+        vertexShader, fragmentShader, side: THREE.DoubleSide,
+        uniforms: { uTexture: { value: textureLoader.load(url) }, uWobble: wobble },
+      }));
+      scene.add(card);
+      return card;
+    });
+
+    const state = { rotation: 0, rotationTarget: 0 };
+
+    Observer.create({
+      target: window,
+      type: 'wheel,touch',
+      preventDefault: true,
+      onChange: (self) => { state.rotationTarget += self.deltaY * settings.scrollSensitivity; },
+    });
+
+    gsap.ticker.add(() => {
+      state.rotationTarget += settings.idleSpin;
+      state.rotation += (state.rotationTarget - state.rotation) * settings.smoothing;
+
+      const lag = gsap.utils.clamp(-1, 1, state.rotationTarget - state.rotation);
+      wobble.value += (lag * settings.wobbleStrength - wobble.value) * settings.smoothing;
+
+      cards.forEach((card, index) => {
+        const slot = gsap.utils.wrap(0, cardCount, index - state.rotation) - cardCount / 2;
+        const angle = slot * settings.angleGap + Math.PI / 2;
+        card.position.set(Math.cos(angle) * settings.radius, slot * settings.verticalGap, Math.sin(angle) * settings.radius);
+        card.rotation.y = Math.PI / 2 - angle;
+      });
+
+      renderer.render(scene, camera);
+    });
+
+    function resize() {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight, false);
+    }
+    resize();
+    addEventListener('resize', resize);
+  </script>
+</body>
+
+</html>
